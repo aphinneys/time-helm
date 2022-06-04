@@ -1,10 +1,12 @@
 function planMyWeekPlease(){
   const MAKE_EVENTS = true; // useful for debugging. 
   const TOTAL_PLAY_HRS = 18; //was 35
-  const MAX_LEARNING_HRS = 10; //learning time! leave..
+  const MAX_LEARNING_HRS = 6; //learning time! DONT count meetings.  
+  const MAX_LEARNING_BLOCK = 2;
   const TOTAL_ADMIN_HRS = 12;
   //const MIN_BREAK = 2;
   const MAX_PLAY_BLOCK = 4;  //deep play, was 7
+  const MAX_HRS_PER_DAY = 9;
   const ADMIN_BLOCK_LENGTH = 2; //freeform play. was 1. 
  // const MAX_CONSEC_HRS = 7;
   const COMMUTE_TIME = 0.5;
@@ -17,6 +19,8 @@ function planMyWeekPlease(){
   var learning_hrs_so_far = 0;
   var admin_hrs_so_far = 0;
   var total_meeting_hrs = 0;
+  function removeTime(date = new Date()) { return new Date(date.getFullYear(), date.getMonth(),date.getDate()); } 
+  // https://bobbyhadz.com/blog/javascript-date-remove-time
   //someday, auto-schedule experiments too! but not yet. call them "Experiment."
   //later one admin per day
 
@@ -32,8 +36,10 @@ function planMyWeekPlease(){
       day_of_week = rn.getDay();
   }
   var free_time = {}
+  var day_hrs = {}
   while (day_of_week < 6){  //until but not including Saturday
       rn.setHours(EARLIEST_TIME, 0, 0);
+      day_hrs[removeTime(date = rn)] = 0
       var elist_day = FROM_CAL.getEventsForDay(rn);
       elist_day = elist_day.concat(LA_CAL.getEventsForDay(rn));
       elist_day.sort((a, b) => {return a.getStartTime() - b.getStartTime()});
@@ -43,13 +49,14 @@ function planMyWeekPlease(){
           continue //ignore all day events. 
         }
         c = e.getColor(); //Peacock is 7, Lavendar is 1, light green is default. 
-        if (c != 1 && e.getOriginalCalendarId() != "cgcr94hh6jmvhca0161ikon0mg@group.calendar.google.com"){ 
+        if (c != 1 && e.getOriginalCalendarId() != "cgcr94hh6jmvhca0161ikon0mg@group.calendar.google.com"){
           //Total meeting hours is everything that is not lavendar and not Liranita, EXCEPT experiments. 
           if (e.getTitle() == "Experiment"){
             play_hrs_so_far += e.getEndTime().getHours() - e.getStartTime().getHours()
           } else {
             total_meeting_hrs += e.getEndTime().getHours() - e.getStartTime().getHours()
           }
+          day_hrs[removeTime(date = rn)] += e.getEndTime().getHours() - e.getStartTime().getHours()
         }
         var hrs_free_rn = (e.getStartTime() - rn) / 36e5;
         //Logger.log(rn + hrs_free_rn) //debug
@@ -110,6 +117,7 @@ function planMyWeekPlease(){
    // Logger.log("std is " + std);
     var et = new Date(st_str);
     et.setTime(st.getTime() + duration*60*60*1000);
+    if (day_hrs[removeTime(date = st)] >= MAX_HRS_PER_DAY) { continue; }
   //  Logger.log("et is " + et)
     if ((curr_avail[1] - duration) >= 1){
       remain_free[i] = [et, curr_avail[1] - duration];
@@ -117,9 +125,11 @@ function planMyWeekPlease(){
       remain_free[i] = [st, 0];
     }
     if (MAKE_EVENTS){
-      TO_CAL.createEvent("Play block", st, et).addPopupReminder(2);  //add it to calendar
+      TO_CAL.createEvent("Deep Play", st, et).addPopupReminder(2);  //add it to calendar
     }
     play_hrs_so_far += duration;
+    day_hrs[removeTime(date = st)] += duration;
+
     i += 1;
    // Logger.log("play hrs so far: " + play_hrs_so_far);
   }
@@ -135,22 +145,24 @@ function planMyWeekPlease(){
     var st = new Date(st_str);
     var et = new Date(st_str);
     et.setTime(st.getTime() + ADMIN_BLOCK_LENGTH*60*60*1000);
+    if (day_hrs[removeTime(date = st)] >= MAX_HRS_PER_DAY) {  continue;  }
     if ((curr_avail[1] - duration) >= 1){
       remain_free[i] = [et, curr_avail[1] - ADMIN_BLOCK_LENGTH];
     } else {
       remain_free[i] = [st, 0];
     }
     if (MAKE_EVENTS){
-      TO_CAL.createEvent("Light admin block", st, et).addPopupReminder(2); 
+      TO_CAL.createEvent("Freeform Play", st, et).addPopupReminder(2); 
     }
     admin_hrs_so_far += ADMIN_BLOCK_LENGTH;
+    day_hrs[removeTime(date = st)] += ADMIN_BLOCK_LENGTH;
     if (admin_hrs_so_far == TOTAL_ADMIN_HRS){
       break;
     }
   }
   remain_free.sort(function(a, b) {return b[1] - a[1];}); // sort again!
-  if (total_meeting_hrs < MAX_LEARNING_HRS){
-    learning_hrs_so_far = total_meeting_hrs; // count meetings towards learning/reading.
+ // if (total_meeting_hrs < MAX_LEARNING_HRS){
+  //  learning_hrs_so_far = total_meeting_hrs; // do NOT count meetings towards learning/reading.
     var i = 0;
     while (learning_hrs_so_far < MAX_LEARNING_HRS){
       var curr_avail = remain_free[i];
@@ -162,14 +174,24 @@ function planMyWeekPlease(){
       var st = new Date(st_str);
       var et = new Date(st_str);
       et.setTime(st.getTime() + duration*60*60*1000);
+      if (day_hrs[removeTime(date = st)] >= MAX_HRS_PER_DAY) { continue;  }
       if (MAKE_EVENTS){
-        TO_CAL.createEvent("Reading/learning block", st, et).addPopupReminder(2);  //add it to calendar
+        TO_CAL.createEvent("Reading/learning", st, et).addPopupReminder(2);  //add it to calendar
       }
       learning_hrs_so_far += duration;
+      day_hrs[removeTime(date = st)] += duration;
       i += 1;
     }
-  }
+ // }
 }
+
+
+
+
+
+
+
+
 
 
 
