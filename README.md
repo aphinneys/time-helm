@@ -2,4 +2,4 @@
 
 This is a fun way of gameifying time spent on work to keep motivation up :)
 
-Built with <3 by @aphinneys and @ava-silver
+Made with 💜 from [@aphinneys](https://github.com/aphinneys) and [@ava-silver](https://github.com/ava-silver)
