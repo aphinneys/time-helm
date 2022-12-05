@@ -18,19 +18,35 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.timehelm.ui.theme.TimeHelmTheme
-import androidx.compose.runtime.collectAsState
+import com.google.protobuf.Timestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.ZoneId
 import kotlin.math.min
 
 
-val items = listOf("Creative", "Learning" , "Campus + Meetings", "Iterating", "Handling")
+enum class Activities {
+    Creative,
+    Learning,
+    CampusMeetings,
+    Iterating,
+    Handling,
+}
+
 val rewards = listOf("I AM AWESOME I AM AWESOME")
+val rates = hashMapOf(
+    Activities.Creative to 3f,
+    Activities.Learning to 2.5f,
+    Activities.CampusMeetings to 2.0f,
+    Activities.Iterating to 1.7f,
+    Activities.Handling to 1.0f
+)
 
 val dailygoal = 10
 val dailymax = 15
+
+fun now(): Timestamp {
+    return Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000L).build()
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,11 +74,9 @@ class MainActivity : ComponentActivity() {
                         .fillMaxHeight()
                         .padding(20.dp)
                 ) {
-                    val lastopen = state.lastDayStreak
-                    val localDate = LocalDate.now()
-                    val midnighttimestamp = localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                    val firstopentoday = lastopen < midnighttimestamp
-                    if (firstopentoday) {
+                    val now = now()
+                    val firstOpenToday = state.lastDayStreak.seconds < now.seconds
+                    if (firstOpenToday) {
                         if (state.fucksTally in 10.0..15.0){
                             updateState(scope, context) {
                                 it.setStreakDays(it.streakDays + 1)
@@ -72,25 +86,24 @@ class MainActivity : ComponentActivity() {
                             it.setStreakDays(0) // lost the streak!
                         }}
                         updateState(scope, context) {
-                            it.setFucksTally(0F) } }
+                            it.setFucksTally(0F).setLastDayStreak(now)
+                        }
+                }
                 Text("${state.streakDays} Day Sustainable Fuckery Streak!")
-            }
-            //todo : include XP in proto save file thingy, and load it here...
-            val XP =  (2..8).random()
-                    //   var tracking by remember { mutableStateOf(false) }
-                    var tracking = state.hasTracking()
-                    // val thing = state.fucksTally
-                    // Text("we have a state!!! $thing")
+                //todo : include XP in proto save file thingy, and load it here...
+                val XP =  (2..8).random()
+                var tracking = state.hasTracking()
+                // val thing = state.fucksTally
+                // Text("we have a state!!! $thing")
 
-                    if (tracking) {
-                        StopGivingAFuckButton(state = state) //stopTracking = { tracking = false })
-                        CheckInButton(state = state)
-                    } else {
-                        GiveAFuckButton(state = state, setidx = selectedIndex)
-                        Text("select an activity lol")
-                        DropdownDemo(selectedIndex, setIndex = { selectedIndex = it })
+                if (tracking) {
+                    StopGivingAFuckButton(state = state) //stopTracking = { tracking = false })
+                    CheckInButton(state = state)
+                } else {
+                    GiveAFuckButton(state = state, setidx = selectedIndex)
+                    Text("select an activity lol")
+                    DropdownDemo(selectedIndex, setIndex = { selectedIndex = it })
 
-                    }
                 }
             }
         }
@@ -104,23 +117,25 @@ fun updateState(scope: CoroutineScope, context: Context, update: (TimeState.Buil
     }
 }
 
+fun fucksToday(state: TimeState): Float {
+    val elapsed = now().seconds - state.tracking.startTime.seconds
+    return state.fucksTally + elapsed / 3600f * rates[Activities.values()[state.tracking.activityValue]]!!
+}
+
 
 @Composable
 fun CheckInButton(state: TimeState) {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val rates = listOf(3, 2.5, 2, 1.7, 1)
-    Button(onClick = {
-        val ts = com.google.protobuf.Timestamp.newBuilder().build()
-        val elapsed = ts.seconds - state.tracking.startTime.seconds
-        val fuckstoday = state.fucksTally + elapsed * rates(state.tracking.activityValue)
-    }, shape = RoundedCornerShape(50)) {
+    var expanded by remember { mutableStateOf(false) }
+    Button(onClick = { expanded = !expanded}, shape = RoundedCornerShape(50)) {
         Text("check progress")
     }
+    val fucksToday = fucksToday(state)
     // this is the same function as the stop button, returns same info, just doesn't "stop" , maybe better to combine somehow?
-    CircularProgressIndicator(progress =  min(1, fuckstoday / 10))
-    if (fuckstoday > 15) {
-        Text("Please stop working, it's been a long day.")
+    if (expanded) {
+        CircularProgressIndicator(min(1f, fucksToday / 10f))
+        if (fucksToday > 15) {
+            Text("Please stop working, it's been a long day.")
+        }
     }
 }
 
@@ -150,10 +165,9 @@ fun StopGivingAFuckButton(state: TimeState) { //stopTracking: () -> Unit) {
         onClick = {
             val ts = com.google.protobuf.Timestamp.newBuilder().build()
             val elapsed = ts.seconds - state.tracking.startTime.seconds
-            val fuckstoday = state.fucksTally + elapsed * rates(state.tracking.activityValue)
-            updateState(scope, context) {
-                it.clearTracking().setFucksTally(fuckstoday)
-              }},
+            val fuckstoday = state.fucksTally + elapsed * state.tracking.activityValue
+            updateState(scope, context) { it.clearTracking().setFucksTally(fuckstoday) }
+        },
         //add a set XP: decrement by 1 IF fuckstoday > 3 and time is before noon
         // if 5 fucks before 5pm
         // if 8 fucks before 8pm
@@ -168,8 +182,9 @@ fun StopGivingAFuckButton(state: TimeState) { //stopTracking: () -> Unit) {
     ) {
         Text("Ok we done giving a fuck")
     }
-    CircularProgressIndicator(progress =  min(1, fuckstoday / 10))
-    if (fuckstoday > 15) {
+    val fucksToday = fucksToday(state)
+    CircularProgressIndicator(progress = min(1f, fucksToday / 10f))
+    if (fucksToday > 15) {
         Text("Please stop working, it's been a long day.")
     }
 }
@@ -180,14 +195,15 @@ fun DropdownDemo(selectedIndex: Int, setIndex: (Int) -> Unit) {
     Box(modifier = Modifier
         .fillMaxSize()
         .wrapContentSize(Alignment.TopStart)) {
-        Text(items[selectedIndex], modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = { expanded = true })
-            .background(
-                Color.LightGray
-            )
-            .clip(RoundedCornerShape(50)) //why this no work
-            .padding(10.dp))
+        Text(
+            Activities.values()[selectedIndex].name, modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = { expanded = true })
+                .background(
+                    Color.LightGray
+                )
+                .clip(RoundedCornerShape(50)) //why this no work
+                .padding(10.dp))
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
@@ -197,12 +213,12 @@ fun DropdownDemo(selectedIndex: Int, setIndex: (Int) -> Unit) {
                     Color.Gray
                 )
         ) {
-            items.forEachIndexed { index, s ->
+            Activities.values().forEachIndexed { index, s ->
                 DropdownMenuItem(onClick = {
                     setIndex(index)
                     expanded = false
                 }) {
-                    Text(text = s)
+                    Text(text = s.name)
                 }
             }
         }

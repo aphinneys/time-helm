@@ -25,4 +25,6 @@ message TimeState {
   google.protobuf.Timestamp lastDayStreak = 3;
 
   float fucksTally = 4;
+
+  int32 xp = 5;
 }
