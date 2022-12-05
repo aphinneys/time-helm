@@ -21,9 +21,16 @@ import com.example.timehelm.ui.theme.TimeHelmTheme
 import androidx.compose.runtime.collectAsState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.ZoneId
+import kotlin.math.min
 
 
 val items = listOf("Creative", "Learning" , "Campus + Meetings", "Iterating", "Handling")
+val rewards = listOf("I AM AWESOME I AM AWESOME")
+
+val dailygoal = 10
+val dailymax = 15
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +41,8 @@ class MainActivity : ComponentActivity() {
                 val state: TimeState by LocalContext.current.stateDataStore.data.collectAsState(
                     initial = TimeState.getDefaultInstance()
                 ) // how to use state
+                val context = LocalContext.current
+                val scope = rememberCoroutineScope()
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -49,20 +58,38 @@ class MainActivity : ComponentActivity() {
                         .fillMaxHeight()
                         .padding(20.dp)
                 ) {
-                    var tracking by remember { mutableStateOf(false) }
-
-                    val thing = state.fucksTally
-                    Text("we have a state!!! $thing")
+                    val lastopen = state.lastDayStreak
+                    val localDate = LocalDate.now()
+                    val midnighttimestamp = localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                    val firstopentoday = lastopen < midnighttimestamp
+                    if (firstopentoday) {
+                        if (state.fucksTally in 10.0..15.0){
+                            updateState(scope, context) {
+                                it.setStreakDays(it.streakDays + 1)
+                            }}
+                        } else {
+                        updateState(scope, context) {
+                            it.setStreakDays(0) // lost the streak!
+                        }}
+                        updateState(scope, context) {
+                            it.setFucksTally(0F) } }
+                Text("${state.streakDays} Day Sustainable Fuckery Streak!")
+            }
+            //todo : include XP in proto save file thingy, and load it here...
+            val XP =  (2..8).random()
+                    //   var tracking by remember { mutableStateOf(false) }
+                    var tracking = state.hasTracking()
+                    // val thing = state.fucksTally
+                    // Text("we have a state!!! $thing")
 
                     if (tracking) {
-                        StopGivingAFuckButton(stopTracking = { tracking = false })
+                        StopGivingAFuckButton(state = state) //stopTracking = { tracking = false })
                         CheckInButton(state = state)
                     } else {
-                        GiveAFuckButton(startTracking = { tracking = true })
-                    }
-                    if (!tracking) {
+                        GiveAFuckButton(state = state, setidx = selectedIndex)
                         Text("select an activity lol")
                         DropdownDemo(selectedIndex, setIndex = { selectedIndex = it })
+
                     }
                 }
             }
@@ -80,44 +107,70 @@ fun updateState(scope: CoroutineScope, context: Context, update: (TimeState.Buil
 
 @Composable
 fun CheckInButton(state: TimeState) {
-    // TODO your code here :)
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Welcome to $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    TimeHelmTheme {
-        Greeting("Time Helm")
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val rates = listOf(3, 2.5, 2, 1.7, 1)
+    Button(onClick = {
+        val ts = com.google.protobuf.Timestamp.newBuilder().build()
+        val elapsed = ts.seconds - state.tracking.startTime.seconds
+        val fuckstoday = state.fucksTally + elapsed * rates(state.tracking.activityValue)
+    }, shape = RoundedCornerShape(50)) {
+        Text("check progress")
+    }
+    // this is the same function as the stop button, returns same info, just doesn't "stop" , maybe better to combine somehow?
+    CircularProgressIndicator(progress =  min(1, fuckstoday / 10))
+    if (fuckstoday > 15) {
+        Text("Please stop working, it's been a long day.")
     }
 }
 
+//https://www.baeldung.com/kotlin/builder-pattern#implementation
+
 @Composable
-fun GiveAFuckButton(startTracking: () -> Unit) {
+fun GiveAFuckButton(state: TimeState, setidx: Int) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     Button(onClick = {
-        startTracking()
+        val ts = com.google.protobuf.Timestamp.newBuilder().build()
         updateState(scope, context) {
-            it.setFucksTally(it.fucksTally + 1)
-        }
-    }, shape = RoundedCornerShape(50)) {
+            it.setTracking(TimeState.Tracking.newBuilder().setStartTime(ts).setActivityValue(setidx).build())
+                //add a set XP: decrement by 1 IF current time is before 10am
+            // decrement XP if this is the second time today...
+        }}
+        , shape = RoundedCornerShape(50)) {
         Text("give a fuck :)")
     }
 }
 
 @Composable
-fun StopGivingAFuckButton(stopTracking: () -> Unit) {
-    Button(onClick = stopTracking, colors = ButtonDefaults.buttonColors(
-        backgroundColor = Color.Red,
-        contentColor = Color.White),
+fun StopGivingAFuckButton(state: TimeState) { //stopTracking: () -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    Button(
+        onClick = {
+            val ts = com.google.protobuf.Timestamp.newBuilder().build()
+            val elapsed = ts.seconds - state.tracking.startTime.seconds
+            val fuckstoday = state.fucksTally + elapsed * rates(state.tracking.activityValue)
+            updateState(scope, context) {
+                it.clearTracking().setFucksTally(fuckstoday)
+              }},
+        //add a set XP: decrement by 1 IF fuckstoday > 3 and time is before noon
+        // if 5 fucks before 5pm
+        // if 8 fucks before 8pm
+        //if fucks elapsed in current state > 3
+        //if fucks elapsed in current state > 5
+        //if XP <= 0: perform Reward, and reset XP (maybe make that a function?)
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = Color.Red,
+            contentColor = Color.White
+        ),
         shape = RoundedCornerShape(50),
     ) {
         Text("Ok we done giving a fuck")
+    }
+    CircularProgressIndicator(progress =  min(1, fuckstoday / 10))
+    if (fuckstoday > 15) {
+        Text("Please stop working, it's been a long day.")
     }
 }
 
@@ -158,6 +211,18 @@ fun DropdownDemo(selectedIndex: Int, setIndex: (Int) -> Unit) {
 
 
 
+@Composable
+fun Greeting(name: String) {
+    Text(text = "Welcome to $name!")
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    TimeHelmTheme {
+        Greeting("Time Helm")
+    }
+}
 
 
 //
