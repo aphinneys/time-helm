@@ -5,6 +5,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
 import androidx.datastore.dataStore
 import com.google.protobuf.InvalidProtocolBufferException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -29,3 +31,11 @@ val Context.stateDataStore: DataStore<TimeState> by dataStore(
     serializer = TimeStateSerializer
 )
 
+
+fun updateState(scope: CoroutineScope, context: Context, update: (TimeState.Builder) -> TimeState.Builder) {
+  scope.launch {
+    context.stateDataStore.updateData { currentState ->
+      currentState.toBuilder().also { update(it) }.build()
+    }
+  }
+}

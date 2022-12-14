@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Time Helm</string>
+    <string name="home_route">Home</string>
+    <string name="settings_route">Settings</string>
+    <string name="pokemon_route">Pokemon</string>
+    <string name="starting_message">It’s never too late to start!</string>
+    <string name="working_message">Keep it up!</string>
+    <string name="done_message">Take a rest, you’ve earned it!</string>
+    <string name="tracking_message">I\'m stopping now</string>
+    <string name="not_tracking_message">I\'m working now</string>
 </resources>
