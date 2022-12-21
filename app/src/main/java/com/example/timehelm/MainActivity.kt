@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     setContent {
       val navController = rememberNavController()
-      val items = listOf(Screen.Home, Screen.Settings, Screen.Pokemon)
+      val items = listOf(Screen.Settings, Screen.Home, Screen.Pokemon)
       Scaffold(
         bottomBar = {
           BottomNavigation {
@@ -70,8 +70,8 @@ class MainActivity : ComponentActivity() {
         }
       ) { innerPadding ->
         NavHost(navController, startDestination = Screen.Home.route, Modifier.padding(innerPadding)) {
+          composable(Screen.Settings.route) { Settings() }
           composable(Screen.Home.route) { Home() }
-          composable(Screen.Settings.route) { Settings(navController) }
           composable(Screen.Pokemon.route) { Pokemon(navController) }
         }
       }

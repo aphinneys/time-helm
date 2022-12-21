@@ -27,7 +27,7 @@ fun Home() {
     initial = TimeState.getDefaultInstance()
   )
   val now = System.currentTimeMillis() / 1000L
-  val elapsedSeconds = now - 1670990000
+  val elapsedSeconds = now - 1671578102
   val elapsedMinutes = ((elapsedSeconds / 60) % 60).toInt()
   val elapsedHours = (elapsedSeconds / (60 * 60)).toInt()
   Column(
@@ -51,21 +51,9 @@ fun Home() {
 @Composable
 fun StateIndicator(streak: Int, xp: Int) {
   Row(modifier = Modifier.padding(20.dp)) {
-    Icon(
-      Icons.Filled.Face,
-      contentDescription = "streak",
-      modifier = Modifier.size(40.dp),
-      tint = Color.Red
-    )
-    Text(text = "Streak: $streak", fontSize = 30.sp, color = Color.Red)
+    Text(text = "\uD83D\uDD25 $streak", fontSize = 40.sp, color = Color(235, 129, 16))
     Spacer(modifier = Modifier.padding(20.dp))
-    Icon(
-      Icons.Filled.Star,
-      contentDescription = "XP",
-      modifier = Modifier.size(40.dp),
-      tint = Color.Blue
-    )
-    Text(text = "XP: $xp", fontSize = 30.sp, color = Color.Blue)
+    Text(text = "\uD83D\uDCA0 $xp", fontSize = 40.sp, color = Color(16, 107, 235))
   }
 }
 
@@ -81,7 +69,7 @@ fun TimeClock(elapsedHours: Int, elapsedMinutes: Int) {
     ) {
       Text(
         text = "%02d:%02d".format(elapsedHours, elapsedMinutes),
-        fontSize = 40.sp,
+        fontSize = 80.sp,
         color = mainColor,
         modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp)
 
@@ -105,7 +93,7 @@ fun Message(elapsedHours: Int, goal: Int) {
           R.string.done_message
         }
       }
-    ), fontStyle = FontStyle.Italic, fontSize = 30.sp, modifier = Modifier.padding(10.dp)
+    ), fontStyle = FontStyle.Italic, fontSize = 40.sp, modifier = Modifier.padding(10.dp)
   )
 }
 
@@ -116,7 +104,9 @@ fun ManualModifyTime() {
     TextField(
       value = textState,
       onValueChange = { textState = it },
-      modifier = Modifier.width(100.dp).height(40.dp)
+      modifier = Modifier
+        .width(100.dp)
+        .height(40.dp)
     )
     Button(onClick = { /*TODO*/ }) {
       Text(text = "Add")
