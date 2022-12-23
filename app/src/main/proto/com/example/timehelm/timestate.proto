@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+
+option java_package = "com.example.timehelm";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+
+
+// current goal (set on difficulty change)
+// current start time (optional)
+// current time tracked today
+
+
+message State {
+  bool isTracking = 1;
+  google.protobuf.Timestamp startTime = 2;
+  google.protobuf.Timestamp timeWorked = 3;
+
+  int32 streakDays = 4;
+  google.protobuf.Timestamp lastDayStreak = 5;
+
+  int32 xp = 6;
+}

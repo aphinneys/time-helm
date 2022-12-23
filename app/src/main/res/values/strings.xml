@@ -5,6 +5,7 @@
     <string name="pokemon_route">Pokemon</string>
     <string name="starting_message">It’s never too late to start!</string>
     <string name="working_message">Keep it up!</string>
+    <string name="in_goal_message">You\'re in the target range!</string>
     <string name="done_message">Take a rest, you’ve earned it!</string>
     <string name="tracking_message">I\'m stopping now</string>
     <string name="not_tracking_message">I\'m working now</string>

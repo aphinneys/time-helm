@@ -1,15 +1,12 @@
 package com.example.timehelm
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,19 +14,40 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.protobuf.Timestamp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import java.lang.Integer.max
+import java.lang.Integer.min
 
 @Composable
 fun Home() {
+  // Declare all necessary data/helpers
   val state by LocalContext.current.stateDataStore.data.collectAsState(
-    initial = TimeState.getDefaultInstance()
+    initial = State.getDefaultInstance()
   )
-  val now = System.currentTimeMillis() / 1000L
-  val elapsedSeconds = now - 1671578102
-  val elapsedMinutes = ((elapsedSeconds / 60) % 60).toInt()
-  val elapsedHours = (elapsedSeconds / (60 * 60)).toInt()
+  val settings by LocalContext.current.settingsDataStore.data.collectAsState(
+    initial = Settings.getDefaultInstance()
+  )
+  val updateState = useUpdateState(rememberCoroutineScope(), LocalContext.current)
+  val toast = useToast(LocalContext.current)
+
+  // check that settings are initialized
+  if (!isSettingsInitialized(settings)) {
+    toast("Settings are not fully initialized!")
+  }
+
+  // use the now variable to determine the current time
+  var now by remember { mutableStateOf(now()) }
+  LaunchedEffect(Unit) { // refresh every five seconds
+    while(true) {
+      now = now()
+      delay(5000)
+    }
+  }
+
   Column(
     horizontalAlignment = Alignment.CenterHorizontally,
     modifier = Modifier
@@ -39,11 +57,12 @@ fun Home() {
   ) {
     Spacer(modifier = Modifier.padding(20.dp))
     StateIndicator(streak = state.streakDays, xp = state.xp)
-    TimeClock(elapsedHours, elapsedMinutes)
-    Message(elapsedHours, goal = 10)
+    TimeClock(state, now)
+    Message(state, settings, now)
+    TrackingButton(state.isTracking, updateState)
     Spacer(modifier = Modifier.padding(20.dp))
-    ManualModifyTime()
-    TrackingButton()
+    ManualModifyTime(updateState, toast)
+    Text("${state.timeWorked.seconds}")
   }
 }
 
@@ -58,7 +77,7 @@ fun StateIndicator(streak: Int, xp: Int) {
 }
 
 @Composable
-fun TimeClock(elapsedHours: Int, elapsedMinutes: Int) {
+fun TimeClock(state: State, now: Timestamp) {
   val mainColor = Color(0, 176, 80)
   val bgColor = Color(197, 223, 178)
   Box(modifier = Modifier.padding(vertical = 20.dp)) {
@@ -68,7 +87,7 @@ fun TimeClock(elapsedHours: Int, elapsedMinutes: Int) {
         .background(color = bgColor)
     ) {
       Text(
-        text = "%02d:%02d".format(elapsedHours, elapsedMinutes),
+        text = fmtTime(state.elapsedHours(now), state.elapsedMins(now)),
         fontSize = 80.sp,
         color = mainColor,
         modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp)
@@ -79,15 +98,18 @@ fun TimeClock(elapsedHours: Int, elapsedMinutes: Int) {
 }
 
 @Composable
-fun Message(elapsedHours: Int, goal: Int) {
+fun Message(state: State, settings: Settings, now: Timestamp) {
   Text(
     text = stringResource(
-      when (elapsedHours) {
+      when (state.elapsedHours(now)) {
         0 -> {
           R.string.starting_message
         }
-        in 1 until goal -> {
+        in 1 until settings.dailyHoursMin -> {
           R.string.working_message
+        }
+        in settings.dailyHoursMin until settings.dailyHoursMax -> {
+          R.string.in_goal_message
         }
         else -> {
           R.string.done_message
@@ -97,38 +119,69 @@ fun Message(elapsedHours: Int, goal: Int) {
   )
 }
 
-@Composable
-fun ManualModifyTime() {
-  var textState by remember { mutableStateOf(TextFieldValue()) }
-  Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-    TextField(
-      value = textState,
-      onValueChange = { textState = it },
-      modifier = Modifier
-        .width(100.dp)
-        .height(40.dp)
-    )
-    Button(onClick = { /*TODO*/ }) {
-      Text(text = "Add")
+fun modifyTime(
+  hr: Int,
+  min: Int,
+  updateState: StateUpdate,
+  toast: Toaster,
+  actionName: String,
+  modifier: (Long, Long) -> Long
+): () -> Unit {
+  return {
+    val hrs = hr.value()
+    val mins = min.value()
+    updateState {
+      it.setTimeWorked(
+        it.timeWorked.toBuilder()
+          .setSeconds(modifier(it.timeWorked.seconds, hrs.toLong() * 3600 + mins * 60))
+      )
     }
-    Button(onClick = { /*TODO*/ }) {
-      Text(text = "Remove")
+    toast(actionName + " " + fmtTime(hrs, mins))
+  }
+}
+
+@Composable
+fun ManualModifyTime(updateState: StateUpdate, toast: Toaster) {
+  var hr by remember { mutableStateOf(0) }
+  var min by remember { mutableStateOf(0) }
+  BodySection {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+      Setting(name = "Hr", value = hr, setValue = { hr = it })
+      Setting(name = "Min", value = min, setValue = { min = it })
+    }
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
+      Button(onClick = modifyTime(hr, min, updateState, toast, "Added") { a, b -> a + b }) {
+        Text(text = "Add", fontSize = 20.sp)
+      }
+      Button(onClick = modifyTime(hr, min, updateState, toast, "Removed") { a, b -> a - b }) {
+        Text(text = "Remove", fontSize = 20.sp)
+      }
     }
   }
 }
 
 @Composable
-fun TrackingButton() {
-  var tracking by remember { mutableStateOf(false) }
-  Button(onClick = { tracking = !tracking }) {
+fun TrackingButton(isTracking: Boolean, updateState: StateUpdate) {
+  Button(onClick = {
+    updateState {
+      if (it.isTracking) { // finished tracking
+        it.timeWorked = it.elapsedTime(now())
+        it.clearStartTime()
+      } else { // starting tracking
+        it.startTime = now()
+      }
+      it.setIsTracking(!it.isTracking)
+    }
+  }) {
     Text(
       text = stringResource(
-        if (tracking) {
+        if (isTracking) {
           R.string.tracking_message
         } else {
           R.string.not_tracking_message
         }
-      )
+      ),
+      fontSize = 30.sp,
     )
   }
 }
