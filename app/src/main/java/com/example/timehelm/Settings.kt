@@ -16,9 +16,7 @@ import java.lang.Integer.max
 
 @Composable
 fun Settings() {
-  val settings by LocalContext.current.settingsDataStore.data.collectAsState(
-    initial = Settings.getDefaultInstance()
-  ) // how to use state
+  val settings by LocalContext.current.settingsDataStore.data.collectAsState(Settings.getDefaultInstance())
 
   val updateSettings = useUpdateSettings(rememberCoroutineScope(), LocalContext.current)
   Section(Modifier.padding(15.dp), 10.dp) {

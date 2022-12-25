@@ -6,6 +6,6 @@ import androidx.navigation.NavController
 
 
 @Composable
-fun Pokemon(navController: NavController) {
+fun Pokemon() {
   Text(text = "pog")
 }

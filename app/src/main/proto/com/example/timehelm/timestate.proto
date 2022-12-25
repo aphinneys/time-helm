@@ -20,5 +20,6 @@ message State {
   int32 streakDays = 4;
   google.protobuf.Timestamp lastDayStreak = 5;
 
-  int32 xp = 6;
+  map<string, bool> xpGoals = 6;
+  int32 xpTarget = 7;
 }

@@ -23,17 +23,7 @@ import java.lang.Integer.max
 import java.lang.Integer.min
 
 @Composable
-fun Home() {
-  // Declare all necessary data/helpers
-  val state by LocalContext.current.stateDataStore.data.collectAsState(
-    initial = State.getDefaultInstance()
-  )
-  val settings by LocalContext.current.settingsDataStore.data.collectAsState(
-    initial = Settings.getDefaultInstance()
-  )
-  val updateState = useUpdateState(rememberCoroutineScope(), LocalContext.current)
-  val toast = useToast(LocalContext.current)
-
+fun Home(state: State, settings: Settings, updateState: StateUpdate, toast: Toaster) {
   // check that settings are initialized
   if (!isSettingsInitialized(settings)) {
     toast("Settings are not fully initialized!")
