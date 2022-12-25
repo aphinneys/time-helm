@@ -5,20 +5,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.timehelm.logic.BodySection
-import com.example.timehelm.logic.Section
-import com.example.timehelm.logic.Setting
 import com.example.timehelm.state.Settings
 import com.example.timehelm.state.SettingsUpdate
-import com.example.timehelm.state.settingsDataStore
-import com.example.timehelm.state.useUpdateSettings
 import java.lang.Integer.max
 
 @Composable
