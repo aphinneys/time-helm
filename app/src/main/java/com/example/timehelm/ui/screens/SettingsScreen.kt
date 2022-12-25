@@ -1,4 +1,4 @@
-package com.example.timehelm
+package com.example.timehelm.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -12,13 +12,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.timehelm.logic.BodySection
+import com.example.timehelm.logic.Section
+import com.example.timehelm.logic.Setting
+import com.example.timehelm.state.Settings
+import com.example.timehelm.state.SettingsUpdate
+import com.example.timehelm.state.settingsDataStore
+import com.example.timehelm.state.useUpdateSettings
 import java.lang.Integer.max
 
 @Composable
-fun Settings() {
-  val settings by LocalContext.current.settingsDataStore.data.collectAsState(Settings.getDefaultInstance())
-
-  val updateSettings = useUpdateSettings(rememberCoroutineScope(), LocalContext.current)
+fun SettingsScreen(settings: Settings, updateSettings: SettingsUpdate) {
   Section(Modifier.padding(15.dp), 10.dp) {
     Text(text = "Settings", fontSize = 40.sp)
     BodySection {

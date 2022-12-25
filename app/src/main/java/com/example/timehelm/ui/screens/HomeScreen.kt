@@ -1,7 +1,5 @@
-package com.example.timehelm
+package com.example.timehelm.ui.screens
 
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -11,19 +9,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.timehelm.R
+import com.example.timehelm.logic.*
+import com.example.timehelm.state.Settings
+import com.example.timehelm.state.State
+import com.example.timehelm.state.StateUpdate
+import com.example.timehelm.state.isSettingsInitialized
 import com.google.protobuf.Timestamp
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import java.lang.Integer.max
-import java.lang.Integer.min
 
 @Composable
-fun Home(state: State, settings: Settings, updateState: StateUpdate, toast: Toaster) {
+fun HomeScreen(state: State, settings: Settings, updateState: StateUpdate, toast: Toaster) {
   // check that settings are initialized
   if (!isSettingsInitialized(settings)) {
     toast("Settings are not fully initialized!")
@@ -154,6 +154,7 @@ fun ManualModifyTime(updateState: StateUpdate, toast: Toaster) {
 fun TrackingButton(isTracking: Boolean, updateState: StateUpdate) {
   Button(onClick = {
     updateState {
+      it.checkSecondCheckInGoal()
       if (it.isTracking) { // finished tracking
         it.timeWorked = it.elapsedTime(now())
         it.clearStartTime()

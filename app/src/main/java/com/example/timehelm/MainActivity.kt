@@ -1,6 +1,7 @@
 package com.example.timehelm
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.StringRes
@@ -23,6 +24,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.timehelm.logic.checkGoals
+import com.example.timehelm.logic.firstOpen
+import com.example.timehelm.logic.onFirstOpen
+import com.example.timehelm.logic.useToast
+import com.example.timehelm.state.*
+import com.example.timehelm.ui.screens.HomeScreen
+import com.example.timehelm.ui.screens.PokemonScreen
+import com.example.timehelm.ui.screens.SettingsScreen
 import com.example.timehelm.ui.theme.TimeHelmTheme
 import kotlinx.coroutines.delay
 
@@ -47,19 +56,22 @@ class MainActivity : ComponentActivity() {
         val items = listOf(Screen.Settings, Screen.Home, Screen.Pokemon)
 
         // Declare all necessary data/helpers
-        val state by LocalContext.current.stateDataStore.data.collectAsState(
-          initial = State.getDefaultInstance()
-        )
-        val settings by LocalContext.current.settingsDataStore.data.collectAsState(
-          initial = Settings.getDefaultInstance()
-        )
+        val state by LocalContext.current.stateDataStore.data.collectAsState(State.getDefaultInstance())
+        val settings by LocalContext.current.settingsDataStore.data.collectAsState(Settings.getDefaultInstance())
         val updateState = useUpdateState(rememberCoroutineScope(), LocalContext.current)
-        val toast = useToast(LocalContext.current)
+        val updateSettings = useUpdateSettings(rememberCoroutineScope(), LocalContext.current)
+        val toast = useToast(LocalContext.current, Toast.LENGTH_SHORT)
+        val toastLong = useToast(LocalContext.current, Toast.LENGTH_LONG)
+
+        // first time loading the app for the day
+        if (state.firstOpen()) {
+          state.onFirstOpen()
+        }
 
         // check the goals
         LaunchedEffect(Unit) {
           while(true) {
-            state.checkGoals(updateState)
+            state.checkGoals(updateState, toastLong)
             delay(10_000)
           }
         }
@@ -104,9 +116,9 @@ class MainActivity : ComponentActivity() {
             startDestination = Screen.Home.route,
             Modifier.padding(innerPadding)
           ) {
-            composable(Screen.Settings.route) { Settings() }
-            composable(Screen.Home.route) { Home(state, settings, updateState, toast) }
-            composable(Screen.Pokemon.route) { Pokemon() }
+            composable(Screen.Settings.route) { SettingsScreen(settings, updateSettings) }
+            composable(Screen.Home.route) { HomeScreen(state, settings, updateState, toast) }
+            composable(Screen.Pokemon.route) { PokemonScreen() }
           }
         }
       }

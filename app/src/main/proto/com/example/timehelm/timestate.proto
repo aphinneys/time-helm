@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 
-option java_package = "com.example.timehelm";
+option java_package = "com.example.timehelm.state";
 option java_multiple_files = true;
 
 import "google/protobuf/timestamp.proto";
@@ -20,6 +20,7 @@ message State {
   int32 streakDays = 4;
   google.protobuf.Timestamp lastDayStreak = 5;
 
-  map<string, bool> xpGoals = 6;
-  int32 xpTarget = 7;
+  int32 prevXp = 6;
+  map<string, bool> xpGoals = 7;
+  int32 xpTarget = 8;
 }
