@@ -1,12 +1,9 @@
 package com.example.timehelm.logic
 
+import com.example.timehelm.state.Settings
 import com.example.timehelm.state.State
 import com.example.timehelm.state.StateUpdate
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
+import java.time.*
 import java.time.chrono.ChronoLocalDateTime
 
 // GOALS
@@ -28,13 +25,13 @@ private const val PROGRESS_3PM = "PROGRESS_3PM"
 private const val PROGRESS_6PM = "PROGRESS_6PM"
 
 //Working for 45 minutes at a stretch (e.g. a single “I’m working” session length)
-private const val STREAK_45MIN = "STREAK_45MIN"
+private const val SESSION_45MIN = "STREAK_45MIN"
 
 //Working for 90 minutes at a stretch
-private const val STREAK_90MIN = "STREAK_90MIN"
+private const val SESSION_90MIN = "STREAK_90MIN"
 
 //Working for 180 minutes (3 hr) at a stretch
-private const val STREAK_180MIN = "STREAK_180MIN"
+private const val SESSION_180MIN = "STREAK_180MIN"
 
 private val messages = hashMapOf(
   SECOND_CHECK_IN to "Second punch in of the day",
@@ -42,9 +39,9 @@ private val messages = hashMapOf(
   PROGRESS_NOON to "25% of goal minimum by noon",
   PROGRESS_3PM to "50% of goal minimum by 3pm",
   PROGRESS_6PM to "75% of goal minimum by 6pm",
-  STREAK_45MIN to "Worked for a 45 min stretch",
-  STREAK_90MIN to "Worked for a 90 min stretch",
-  STREAK_180MIN to "Worked for a 180 min stretch",
+  SESSION_45MIN to "Worked for a 45 min stretch",
+  SESSION_90MIN to "Worked for a 90 min stretch",
+  SESSION_180MIN to "Worked for a 180 min stretch",
 )
 
 val State.xp: Int
@@ -80,20 +77,47 @@ fun time6pm(): ChronoLocalDateTime<*> {
   return dateTime(LocalTime.of(18, 0))
 }
 
-fun State.checkGoals(update: StateUpdate, toast: Toaster) {
-  val goals = HashMap(this.xpGoalsMap)
-  val time = LocalDateTime.now()
-
-
-  // pre 10am
-  if (goals.notCompleted(START_PRE_10)
-    && this.elapsedTime(now()).seconds > 0
-    && time.isBefore(time10am())
+fun State.checkTimeCompletionGoal(
+  goals: HashMap<String, Boolean>,
+  completionGoal: String,
+  dailyHoursMin: Int,
+  time: ChronoLocalDateTime<*>,
+  progress: Float
+) {
+  if (goals.notCompleted(completionGoal)
+    && LocalDateTime.now().isBefore(time)
+    && elapsedTime(now()).seconds > dailyHoursMin * 3600 * progress
   ) {
-    goals[START_PRE_10] = true
+    goals[completionGoal] = true
+  }
+}
+
+fun State.checkSessionLengthGoal(
+  goals: HashMap<String, Boolean>,
+  sessionGoal: String,
+  lengthMinutes: Int,
+) {
+  if (goals.notCompleted(sessionGoal)
+    && isTracking
+    && now().diff(startTime).minutes > lengthMinutes) {
+    goals[sessionGoal] = true
   }
 
-  //
+}
+
+fun State.checkGoals(update: StateUpdate, settings: Settings, toast: Toaster) {
+  val goals = HashMap(xpGoalsMap)
+
+  // time of day based goals
+  checkTimeCompletionGoal(goals, START_PRE_10, settings.dailyHoursMin, time10am(), 0f)
+  checkTimeCompletionGoal(goals, PROGRESS_NOON, settings.dailyHoursMin, timeNoon(), .25f)
+  checkTimeCompletionGoal(goals, PROGRESS_3PM, settings.dailyHoursMin, time3pm(), .5f)
+  checkTimeCompletionGoal(goals, PROGRESS_6PM, settings.dailyHoursMin, time6pm(), .75f)
+
+  // session based goals
+  checkSessionLengthGoal(goals, SESSION_45MIN, 45)
+  checkSessionLengthGoal(goals, SESSION_90MIN, 90)
+  checkSessionLengthGoal(goals, SESSION_180MIN, 180)
 
   val diff = HashSet(goals.filterValues { it }.keys)
     .subtract(HashSet(this.xpGoalsMap.filterValues { it }.keys))
@@ -104,16 +128,12 @@ fun State.checkGoals(update: StateUpdate, toast: Toaster) {
 }
 
 fun State.Builder.checkSecondCheckInGoal() {
-  if (this.xpGoalsMap.notCompleted(SECOND_CHECK_IN)
-    && !this.isTracking // we are now checking in
-    && this.timeWorked.seconds > 0) {
-    this.putXpGoals(SECOND_CHECK_IN, true)
+  if (xpGoalsMap.notCompleted(SECOND_CHECK_IN)
+    && !isTracking // we are now checking in
+    && timeWorked.seconds > 0
+  ) {
+    putXpGoals(SECOND_CHECK_IN, true)
   }
-}
-
-fun State.Builder.startDayXp() {
-  this.prevXp += this.xpGoalsMap.count { it.value }
-  this.clearXpGoals()
 }
 
 

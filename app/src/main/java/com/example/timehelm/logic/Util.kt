@@ -3,10 +3,13 @@ package com.example.timehelm.logic
 import android.content.Context
 import android.widget.Toast
 import com.example.timehelm.state.State
+import com.example.timehelm.state.StateOrBuilder
 import com.google.protobuf.Timestamp
 import java.lang.Integer.max
 import java.lang.Long.min
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 
 typealias Toaster = (String) -> Unit
 
@@ -25,43 +28,40 @@ fun now(): Timestamp {
     .setSeconds(System.currentTimeMillis() / 1000).build()
 }
 
+val Timestamp.hours: Long
+  get() = seconds / 3600
+
+val Timestamp.minutes: Long
+  get() = seconds / 60
+
+fun Timestamp.toLocalDate(): LocalDate {
+  return Instant.ofEpochSecond(seconds).atZone(ZoneId.systemDefault()).toLocalDate();
+}
+
 fun Timestamp.add(other: Timestamp): Timestamp {
-  return this.toBuilder()
-    .setSeconds(this.seconds + other.seconds)
-    .setNanos(this.nanos + other.nanos).build()
+  return toBuilder()
+    .setSeconds(seconds + other.seconds)
+    .setNanos(nanos + other.nanos).build()
 }
 
 fun Timestamp.diff(other: Timestamp): Timestamp {
-  return this.toBuilder()
-    .setSeconds(this.seconds - other.seconds)
-    .setNanos(this.nanos - other.nanos).build()
+  return toBuilder()
+    .setSeconds(seconds - other.seconds)
+    .setNanos(nanos - other.nanos).build()
 }
 
-fun State.Builder.elapsedTime(now: Timestamp): Timestamp {
-  return this.build().elapsedTime(now)
-}
-
-fun State.elapsedTime(now: Timestamp): Timestamp {
-  if (this.isTracking) {
-    return this.timeWorked.add(now.diff(this.startTime))
+fun StateOrBuilder.elapsedTime(now: Timestamp): Timestamp {
+  if (isTracking) {
+    return timeWorked.add(now.diff(startTime))
   }
-  return this.timeWorked
+  return timeWorked
 }
 
 // Don't show more than 100 hours
 fun State.elapsedHours(now: Timestamp): Int {
-  return min(100, this.elapsedTime(now).seconds / 3600).toInt()
+  return min(100, elapsedTime(now).seconds / 3600).toInt()
 }
 
 fun State.elapsedMins(now: Timestamp): Int {
-  return ((this.elapsedTime(now).seconds / 60) % 60).toInt()
+  return ((elapsedTime(now).seconds / 60) % 60).toInt()
 }
-
-fun State.firstOpen(): Boolean {
-  return false
-}
-
-fun State.onFirstOpen() {
-
-}
-

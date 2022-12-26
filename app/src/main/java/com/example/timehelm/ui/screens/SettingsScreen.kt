@@ -49,5 +49,11 @@ fun SettingsScreen(settings: Settings, updateSettings: SettingsUpdate) {
         value = settings.vacationDays
       ) { v -> updateSettings { it.setVacationDays(v) } }
     }
+    BodySection {
+      Setting(
+        name = "Start of Day",
+        value = settings.startOfDay
+      ) { v -> updateSettings { it.setStartOfDay(v) } }
+    }
   }
 }

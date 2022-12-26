@@ -85,6 +85,6 @@ fun useUpdateSettings(
   }
 }
 
-fun isSettingsInitialized(s: Settings): Boolean {
-  return s.isInitialized && s.dailyHoursMax >= 0 && s.dailyHoursMin >= 0 && s.dailyHoursMax >= 0 && s.difficultyAvg >= 0 && s.difficultyVariance >= 0
+fun Settings.isFullyInitialized(): Boolean {
+  return isInitialized && dailyHoursMax >= 0 && dailyHoursMin >= 0 && dailyHoursMax >= 0 && difficultyAvg >= 0 && difficultyVariance >= 0
 }

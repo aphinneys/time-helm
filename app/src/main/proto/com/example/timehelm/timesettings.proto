@@ -14,4 +14,6 @@ message Settings {
   int32 difficultyVariance = 4;
 
   int32 vacationDays = 5; // TODO make this better later
+
+  int32 startOfDay = 6;
 }

@@ -64,14 +64,14 @@ class MainActivity : ComponentActivity() {
         val toastLong = useToast(LocalContext.current, Toast.LENGTH_LONG)
 
         // first time loading the app for the day
-        if (state.firstOpen()) {
-          state.onFirstOpen()
+        if (state.firstOpen(settings.startOfDay, toast)) {
+          updateState { it.onFirstOpen(toastLong, settings) }
         }
 
         // check the goals
         LaunchedEffect(Unit) {
-          while(true) {
-            state.checkGoals(updateState, toastLong)
+          while (true) {
+            state.checkGoals(updateState, settings, toastLong)
             delay(10_000)
           }
         }
