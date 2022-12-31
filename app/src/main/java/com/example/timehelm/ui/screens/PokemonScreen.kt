@@ -1,6 +1,6 @@
 package com.example.timehelm.ui.screens
 
-import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
@@ -41,11 +41,71 @@ fun hour(): Long {
 }
 
 @Composable
-fun CatchPokemon(xp: Int, data: PokemonData, state: PokemonState, update: PokemonUpdate) {
+fun PokemonSprite(url: String, name: String, modifier: Modifier = Modifier) {
+  SubcomposeAsyncImage(
+    model = ImageRequest.Builder(LocalContext.current)
+      .data(url)
+      .crossfade(true)
+      .build(),
+    contentDescription = name,
+    loading = { CircularProgressIndicator() },
+    error = {
+      Icon(
+        Icons.Filled.Close,
+        stringResource(R.string.image_load_failed),
+        Modifier.fillMaxWidth(.5f),
+        Color.Red
+      )
+      Text(
+        stringResource(R.string.image_load_failed),
+        fontSize = 30.sp,
+        color = Color.Red
+      )
+    },
+    contentScale = ContentScale.FillWidth,
+    modifier = modifier,
+  )
+
+}
+
+@Composable
+fun popup(message: String, confirmText: String, imageURL: String?, close: () -> Unit) {
+  AlertDialog(onDismissRequest = close,
+    title = {
+      Text(message, fontSize = 30.sp)
+    },
+    text = {
+      imageURL?.let {
+        PokemonSprite(
+          it, "Caught Pokemon",
+          Modifier
+            .fillMaxWidth()
+            .height(300.dp)
+        )
+      }
+    },
+    confirmButton = {
+      Button(onClick = close) {
+        Text(confirmText, fontSize = 20.sp)
+      }
+    })
+}
+
+
+@Composable
+fun CatchPokemon(
+  xp: Int,
+  data: PokemonData,
+  state: PokemonState,
+  updatePokemon: PokemonUpdate,
+  updateState: StateUpdate
+) {
   val rotation = remember { Animatable(0f) }
   val scope = rememberCoroutineScope()
-  val toast = useToast(LocalContext.current, Toast.LENGTH_SHORT)
-  val catchProbability = remember(data) { data.catchProbabilty(xp) }
+
+  @StringRes
+  var caughtState: Int? by remember { mutableStateOf(null) }
+  val catchProbability = remember(data) { data.catchProbability(xp) }
   val catch: () -> Unit = {
     if (!state.attempted) {
       scope.launch {
@@ -55,34 +115,52 @@ fun CatchPokemon(xp: Int, data: PokemonData, state: PokemonState, update: Pokemo
         )
         rotation.snapTo(0f)
         if (catchProbability.didCatch()) {
-          toast("you caught it!")
-          state.addPokemon(update, data)
+          caughtState = R.string.caught_text
+          state.addPokemon(updatePokemon, data)
+          updateState { it.setPrevXp(it.prevXp - 1) } // todo change subtracted val
         } else {
-          toast("it got away :(")
-          // todo change the header or smthn
+          caughtState = R.string.escaped_text
         }
-        update { it.setAttempted(true) }
+        updatePokemon { it.setAttempted(true) }
       }
     }
   }
-  Column(
-    verticalArrangement = Arrangement.spacedBy(25.dp),
-    horizontalAlignment = Alignment.CenterHorizontally,
-  ) {
-    Text("A wild ${data.name} appeared!", fontSize = 25.sp, textAlign = TextAlign.Center)
-    Image(
-      painterResource(R.drawable.pokeball), contentDescription = "Pokeball",
-      Modifier
-        .fillMaxWidth(.25f)
-        .clickable(
-          enabled = true, onClickLabel = "Clickable Pokeball", onClick = catch
-        )
-        .graphicsLayer {
-          rotationZ = rotation.value
-        },
-      contentScale = ContentScale.Inside,
-    )
-    Text("There is a ${(catchProbability * 100).toInt()}% chance to catch it", fontSize = 20.sp)
+  if (!state.attempted) {
+    Column(
+      verticalArrangement = Arrangement.spacedBy(25.dp),
+      horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+      Text("A wild ${data.name} appeared!", fontSize = 25.sp, textAlign = TextAlign.Center)
+      Image(
+        painterResource(R.drawable.pokeball), contentDescription = "Pokeball",
+        Modifier
+          .fillMaxWidth(.25f)
+          .clickable(
+            enabled = true, onClickLabel = "Clickable Pokeball", onClick = catch
+          )
+          .graphicsLayer {
+            rotationZ = rotation.value
+          },
+        contentScale = ContentScale.Inside,
+      )
+      Text(
+        "There is a ${(catchProbability * 100).toInt()}% chance to catch it (${data.catchRate})",
+        fontSize = 20.sp
+      )
+    }
+  }
+  caughtState?.let {
+    popup(
+      stringResource(it),
+      stringResource(
+        if (it == R.string.caught_text)
+          R.string.confirm_caught
+        else R.string.confirm_escaped
+      ),
+      if (it == R.string.caught_text) data.picture_url else null
+    ) {
+      caughtState = null
+    }
   }
 }
 
@@ -115,30 +193,8 @@ fun PokemonList(pokemon: List<Pokemon>) {
               Text("x${it.count}", fontSize = 30.sp)
             }
           }
-          SubcomposeAsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-              .data(it.pictureUrl)
-              .crossfade(true)
-              .size(5000, 5000)
-              .build(),
-            contentDescription = it.name,
-            loading = { CircularProgressIndicator() },
-            error = {
-              Icon(
-                Icons.Filled.Close,
-                stringResource(R.string.image_load_failed),
-                Modifier.fillMaxWidth(.5f),
-                Color.Red
-              )
-              Text(
-                stringResource(R.string.image_load_failed),
-                fontSize = 30.sp,
-                color = Color.Red
-              )
-            },
-            contentScale = ContentScale.FillWidth,
-            modifier = Modifier.fillMaxWidth(),
-          )
+          Text(it.typesList.joinToString())
+          PokemonSprite(it.pictureUrl, it.name, Modifier.fillMaxWidth())
         }
       }
     }
@@ -158,6 +214,7 @@ fun PokemonScreen() {
   }
 
   val timeState by LocalContext.current.stateDataStore.data.collectAsState(State.getDefaultInstance())
+  val updateTimeState = useUpdateState(rememberCoroutineScope(), LocalContext.current)
   val storedPokemon by LocalContext.current.pokemonDataStore.data.collectAsState(PokemonState.getDefaultInstance())
   val updatePokemon = useUpdatePokemon(rememberCoroutineScope(), LocalContext.current)
   val sortedPokemon = remember(storedPokemon.pokemonList) {
@@ -191,7 +248,9 @@ fun PokemonScreen() {
         timeState.xp,
         it,
         storedPokemon,
-        updatePokemon,)
+        updatePokemon,
+        updateTimeState,
+      )
     }
     PokemonList(sortedPokemon)
   }

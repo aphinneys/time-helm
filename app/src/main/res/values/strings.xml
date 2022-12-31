@@ -10,4 +10,8 @@
     <string name="tracking_message">I\'m stopping now</string>
     <string name="not_tracking_message">I\'m working now</string>
     <string name="image_load_failed">Image failed to load</string>
+    <string name="caught_text">You caught it!</string>
+    <string name="escaped_text">it got away :(</string>
+    <string name="confirm_caught">Awesome!</string>
+    <string name="confirm_escaped">Ok 😔</string>
 </resources>

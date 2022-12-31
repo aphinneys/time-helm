@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
+import java.lang.Float.min
 import java.net.URL
 
 
@@ -120,13 +121,13 @@ fun PokemonState.addPokemon(update: PokemonUpdate, pokemon: PokemonData?) {
   }
 }
 
-const val MAX_THETA = 255
+const val MAGIC_NUMBER = 1250f
 
 fun Float.didCatch(): Boolean {
   return Math.random() < this
 }
 
-fun PokemonData.catchProbabilty(xp: Int): Float {
-  return (catchRate / (MAX_THETA - (10 * xp)).toFloat()).let { if (it < 0) 1f else it }
+fun PokemonData.catchProbability(xp: Int): Float {
+  return min(1f, (catchRate * xp) / MAGIC_NUMBER)
 }
 
