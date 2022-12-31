@@ -9,4 +9,5 @@
     <string name="done_message">Take a rest, you’ve earned it!</string>
     <string name="tracking_message">I\'m stopping now</string>
     <string name="not_tracking_message">I\'m working now</string>
+    <string name="image_load_failed">Image failed to load</string>
 </resources>

@@ -11,6 +11,8 @@ import kotlinx.coroutines.launch
 import java.io.InputStream
 import java.io.OutputStream
 
+// TIME STATE
+
 object StateSerializer : Serializer<State> {
   override val defaultValue: State = State.getDefaultInstance()
 
@@ -47,6 +49,8 @@ fun useUpdateState(
     }
   }
 }
+
+// SETTINGS
 
 object SettingsSerializer : Serializer<Settings> {
   override val defaultValue: Settings = Settings.getDefaultInstance()
@@ -87,4 +91,43 @@ fun useUpdateSettings(
 
 fun Settings.isFullyInitialized(): Boolean {
   return isInitialized && dailyHoursMax >= 0 && dailyHoursMin >= 0 && dailyHoursMax >= 0 && difficultyAvg >= 0 && difficultyVariance >= 0
+}
+
+// POKEMON STATE
+
+object PokemonSerializer : Serializer<PokemonState> {
+  override val defaultValue: PokemonState = PokemonState.getDefaultInstance()
+
+  override suspend fun readFrom(input: InputStream): PokemonState {
+    try {
+      return PokemonState.parseFrom(input)
+    } catch (exception: InvalidProtocolBufferException) {
+      throw CorruptionException("Cannot read proto.", exception)
+    }
+  }
+
+  override suspend fun writeTo(
+    t: PokemonState,
+    output: OutputStream
+  ) = t.writeTo(output)
+}
+
+val Context.pokemonDataStore: DataStore<PokemonState> by dataStore(
+  fileName = "pokemon.pb",
+  serializer = PokemonSerializer
+)
+
+typealias PokemonUpdate = ((PokemonState.Builder) -> PokemonState.Builder) -> Unit
+
+fun useUpdatePokemon(
+  scope: CoroutineScope,
+  context: Context
+): PokemonUpdate {
+  return { update ->
+    scope.launch {
+      context.pokemonDataStore.updateData { currentPokemon ->
+        currentPokemon.toBuilder().also { update(it) }.build()
+      }
+    }
+  }
 }

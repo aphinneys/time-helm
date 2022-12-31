@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+
+option java_package = "com.example.timehelm.state";
+option java_multiple_files = true;
+
+message Pokemon {
+  uint32 id = 1;
+  string name = 2;
+  string picture_url = 3;
+  repeated string types = 4;
+  uint32 count = 5;
+}
+
+message PokemonState {
+  repeated Pokemon pokemon = 1;
+}

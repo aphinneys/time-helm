@@ -1,0 +1,116 @@
+package com.example.timehelm.logic
+
+import com.example.timehelm.state.Pokemon
+import com.example.timehelm.state.PokemonState
+import com.example.timehelm.state.PokemonUpdate
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
+import java.net.URL
+
+
+data class PokemonData(
+  val id: Int,
+  val name: String,
+  val picture_url: String?,
+  val types: List<String>,
+) {
+  fun toStoredPokemon(): Pokemon {
+    return Pokemon.newBuilder()
+      .setId(id)
+      .setName(name)
+      .setCount(1)
+      .setPictureUrl(picture_url)
+      .addAllTypes(types)
+      .build()
+  }
+}
+
+
+
+val picturePriorities = listOf(
+  "front_shiny_female",
+  "front_shiny",
+  "front_female",
+  "front_default",
+)
+
+fun JSONObject.choosePokemonPicture(): String? {
+    val k = keys().asSequence().toList()
+    for (pic in picturePriorities) {
+      if (k.contains(pic) && !isNull(pic)) {
+        return getString(pic)
+      }
+    }
+    return if (k.isNotEmpty()) { getString(k[0]) } else { null }
+  }
+
+fun <T> JSONArray.toList(transform: (JSONObject) -> T): List<T> {
+  val list = mutableListOf<T>()
+  for (i in 0 until length()) {
+    val value = this[i]
+    if (value !is JSONObject)
+      throw Exception("error parsing value")
+    list.add(transform(value))
+  }
+  return list
+}
+
+val JSONObject.pokemonData: PokemonData
+  get() = PokemonData(
+    getInt("id"),
+    getString("name"),
+    getJSONObject("sprites").choosePokemonPicture(),
+    getJSONArray("types").toList {
+      it.getJSONObject("type").getString("name")
+    },
+  )
+
+
+const val POKEMON_API = "https://pokeapi.co/api/v2/pokemon/"
+val VALID_IDS = 1..905
+
+fun pickId(): Int {
+  return VALID_IDS.random()
+}
+
+suspend fun getPokemon(id: Int): PokemonData? {
+  if (!VALID_IDS.contains(id)) {
+    return null
+  }
+  return try {
+    withContext(Dispatchers.IO) {
+      val jsonString =
+        URL(POKEMON_API + id.toString()).openStream().bufferedReader().use { it.readText() }
+      JSONObject(jsonString).pokemonData
+    }
+  } catch (ex: java.lang.Exception) {
+    null
+  }
+}
+
+fun PokemonState.indexOf(id: Int): Int {
+  pokemonList.forEachIndexed { index, pokemon ->
+    if (pokemon.id == id) {
+      return index
+    }
+  }
+  return -1
+}
+
+fun Pokemon.increment(): Pokemon.Builder {
+  return toBuilder().setCount(count + 1)
+}
+
+fun PokemonState.addPokemon(update: PokemonUpdate, pokemon: PokemonData?) {
+  if (pokemon == null) {
+    return
+  }
+  val idx = indexOf(pokemon.id)
+  if (idx >= 0) { // we already have it
+    update { it.setPokemon(idx, it.getPokemon(idx).increment())}
+  } else { // we don't have it yet
+    update { it.addPokemon( pokemon.toStoredPokemon()) }
+  }
+}
