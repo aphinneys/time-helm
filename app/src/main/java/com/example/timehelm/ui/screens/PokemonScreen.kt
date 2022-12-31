@@ -182,7 +182,7 @@ fun PokemonScreen() {
       Button({ updatePokemon { it.clearPokemon() } }) {
         Text("Clear")
       }
-      Button({ updatePokemon { it.setyAttempted(false) } }) {
+      Button({ updatePokemon { it.setAttempted(false) } }) {
         Text("attempt")
       }
     }
