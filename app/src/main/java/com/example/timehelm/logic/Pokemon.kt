@@ -15,6 +15,7 @@ data class PokemonData(
   val name: String,
   val picture_url: String?,
   val types: List<String>,
+  val catchRate: Int,
 ) {
   fun toStoredPokemon(): Pokemon {
     return Pokemon.newBuilder()
@@ -28,7 +29,6 @@ data class PokemonData(
 }
 
 
-
 val picturePriorities = listOf(
   "front_shiny_female",
   "front_shiny",
@@ -37,14 +37,18 @@ val picturePriorities = listOf(
 )
 
 fun JSONObject.choosePokemonPicture(): String? {
-    val k = keys().asSequence().toList()
-    for (pic in picturePriorities) {
-      if (k.contains(pic) && !isNull(pic)) {
-        return getString(pic)
-      }
+  val k = keys().asSequence().toList()
+  for (pic in picturePriorities) {
+    if (k.contains(pic) && !isNull(pic)) {
+      return getString(pic)
     }
-    return if (k.isNotEmpty()) { getString(k[0]) } else { null }
   }
+  return if (k.isNotEmpty()) {
+    getString(k[0])
+  } else {
+    null
+  }
+}
 
 fun <T> JSONArray.toList(transform: (JSONObject) -> T): List<T> {
   val list = mutableListOf<T>()
@@ -57,18 +61,9 @@ fun <T> JSONArray.toList(transform: (JSONObject) -> T): List<T> {
   return list
 }
 
-val JSONObject.pokemonData: PokemonData
-  get() = PokemonData(
-    getInt("id"),
-    getString("name"),
-    getJSONObject("sprites").choosePokemonPicture(),
-    getJSONArray("types").toList {
-      it.getJSONObject("type").getString("name")
-    },
-  )
-
 
 const val POKEMON_API = "https://pokeapi.co/api/v2/pokemon/"
+const val SPECIES_API = "https://pokeapi.co/api/v2/pokemon-species/"
 val VALID_IDS = 1..905
 
 fun pickId(): Int {
@@ -81,9 +76,19 @@ suspend fun getPokemon(id: Int): PokemonData? {
   }
   return try {
     withContext(Dispatchers.IO) {
-      val jsonString =
-        URL(POKEMON_API + id.toString()).openStream().bufferedReader().use { it.readText() }
-      JSONObject(jsonString).pokemonData
+      val pokeJson = JSONObject(
+        URL(POKEMON_API + id.toString()).openStream().bufferedReader().use { it.readText() })
+      val speciesJson = JSONObject(
+        URL(SPECIES_API + id.toString()).openStream().bufferedReader().use { it.readText() })
+      PokemonData(
+        id,
+        pokeJson.getString("name"),
+        pokeJson.getJSONObject("sprites").choosePokemonPicture(),
+        pokeJson.getJSONArray("types").toList {
+          it.getJSONObject("type").getString("name")
+        },
+        speciesJson.getInt("capture_rate"),
+      )
     }
   } catch (ex: java.lang.Exception) {
     null
@@ -109,8 +114,19 @@ fun PokemonState.addPokemon(update: PokemonUpdate, pokemon: PokemonData?) {
   }
   val idx = indexOf(pokemon.id)
   if (idx >= 0) { // we already have it
-    update { it.setPokemon(idx, it.getPokemon(idx).increment())}
+    update { it.setPokemon(idx, it.getPokemon(idx).increment()) }
   } else { // we don't have it yet
-    update { it.addPokemon( pokemon.toStoredPokemon()) }
+    update { it.addPokemon(pokemon.toStoredPokemon()) }
   }
 }
+
+const val MAX_THETA = 255
+
+fun Float.didCatch(): Boolean {
+  return Math.random() < this
+}
+
+fun PokemonData.catchProbabilty(xp: Int): Float {
+  return (catchRate / (MAX_THETA - (10 * xp)).toFloat()).let { if (it < 0) 1f else it }
+}
+

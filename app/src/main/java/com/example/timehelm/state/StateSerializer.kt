@@ -38,7 +38,6 @@ open class Serialize<T : MessageLite>(default: () -> T, val parseFrom: (InputStr
       throw CorruptionException("Cannot read proto.", exception)
     }
   }
-
   override suspend fun writeTo(
     t: T,
     output: OutputStream
