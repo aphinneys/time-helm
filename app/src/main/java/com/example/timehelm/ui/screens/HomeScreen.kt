@@ -2,10 +2,9 @@ package com.example.timehelm.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -48,7 +47,7 @@ fun HomeScreen(state: State, settings: Settings, updateState: StateUpdate, toast
       .fillMaxWidth()
       .fillMaxHeight()
       .padding(20.dp)
-      .scrollable(rememberScrollState(), Orientation.Vertical)
+      .verticalScroll(rememberScrollState())
   ) {
     Spacer(modifier = Modifier.padding(20.dp))
     StateIndicator(streak = state.streakDays, xp = state.xp)
@@ -57,6 +56,7 @@ fun HomeScreen(state: State, settings: Settings, updateState: StateUpdate, toast
     TrackingButton(state.isTracking, updateState)
     Spacer(modifier = Modifier.padding(10.dp))
     ManualModifyTime(updateState, toast)
+    Spacer(modifier = Modifier.padding(10.dp))
     GoalsPopup(state.xpGoalsMap.filter { it.value }.map { it.key })
   }
 }
@@ -74,11 +74,15 @@ fun GoalsPopup(xpGoals: List<String>) {
         Text("Goals Finished Today", fontSize = 30.sp)
       },
       text = {
-        Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+          if (xpGoals.isEmpty()) {
+            Text("None so far!", fontStyle = FontStyle.Italic, fontSize = 25.sp)
+          } else {
           xpGoals.forEach {
             messages[it]?.let { message ->
-              Text(message, fontSize = 25.sp)
+              Text("⭐ $message", fontSize = 25.sp)
             }
+          }
           }
         }
       },
@@ -124,7 +128,7 @@ fun TimeClock(state: State, now: Timestamp) {
 @Composable
 fun Message(state: State, settings: Settings, now: Timestamp) {
   Text(
-    text = stringResource(
+    stringResource(
       when (state.elapsedHours(now)) {
         0 -> {
           R.string.starting_message

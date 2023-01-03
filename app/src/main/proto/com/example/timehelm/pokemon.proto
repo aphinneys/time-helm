@@ -15,4 +15,6 @@ message Pokemon {
 message PokemonState {
   repeated Pokemon pokemon = 1;
   bool attempted = 2;
+  uint64 attemptHour = 3;
+  uint32 currentPokemonId = 4;
 }

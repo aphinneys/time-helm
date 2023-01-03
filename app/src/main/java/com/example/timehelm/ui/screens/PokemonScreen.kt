@@ -1,5 +1,6 @@
 package com.example.timehelm.ui.screens
 
+import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -34,6 +35,7 @@ import com.example.timehelm.state.State
 import com.example.timehelm.ui.theme.Shapes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.Integer.min
 
 
 fun hour(): Long {
@@ -117,7 +119,7 @@ fun CatchPokemon(
         if (catchProbability.didCatch()) {
           caughtState = R.string.caught_text
           state.addPokemon(updatePokemon, data)
-          updateState { it.setPrevXp(it.prevXp - 5) } // todo change subtracted val
+          updateState { it.setPrevXp(it.prevXp - min(5, it.todayXp)) } // todo change subtracted val
         } else {
           caughtState = R.string.escaped_text
         }
@@ -212,19 +214,23 @@ fun PokemonScreen() {
       delay(10_000)
     }
   }
-
+  // set up state/updaters
   val timeState by LocalContext.current.stateDataStore.data.collectAsState(State.getDefaultInstance())
   val updateTimeState = useUpdateState(rememberCoroutineScope(), LocalContext.current)
-  val storedPokemon by LocalContext.current.pokemonDataStore.data.collectAsState(PokemonState.getDefaultInstance())
-  val updatePokemon = useUpdatePokemon(rememberCoroutineScope(), LocalContext.current)
-  val sortedPokemon = remember(storedPokemon.pokemonList) {
-    storedPokemon.pokemonList.sortedWith { p1, p2 -> p1.id.compareTo(p2.id) }
+  val pokemonState by LocalContext.current.pokemonDataStore.data.collectAsState(PokemonState.newBuilder().setAttemptHour(hour()).build())
+  val updatePokemonState = useUpdatePokemon(rememberCoroutineScope(), LocalContext.current)
+  val pokemon = remember(pokemonState.pokemonList) {
+    pokemonState.pokemonList.sortedWith { p1, p2 -> p1.id.compareTo(p2.id) }
   }
-  // pokemon
+  // pokemon data fetching
   var pokemonData: PokemonData? by remember { mutableStateOf(null) }
   LaunchedEffect(hours) {
-    pokemonData = getPokemon(pickId())
-    updatePokemon { it.setAttempted(false) }
+    if (hours != pokemonState.attemptHour) {
+      updatePokemonState { it.setAttempted(false).setAttemptHour(hours).setCurrentPokemonId(pickId()) }
+    }
+  }
+  LaunchedEffect(pokemonState.currentPokemonId) {
+    pokemonData = getPokemon(pokemonState.currentPokemonId)
   }
 
   Section(Modifier.padding(15.dp), 10.dp) {
@@ -233,11 +239,11 @@ fun PokemonScreen() {
       CatchPokemon(
         timeState.xp,
         it,
-        storedPokemon,
-        updatePokemon,
+        pokemonState,
+        updatePokemonState,
         updateTimeState,
       )
     }
-    PokemonList(sortedPokemon)
+    PokemonList(pokemon)
   }
 }
