@@ -10,8 +10,7 @@ fun Timestamp.realDay(startOfDay: Int): LocalDate {
   return toBuilder().setSeconds(seconds - (startOfDay.toLong() * 3600)).build().toLocalDate()
 }
 
-fun State.firstOpen(startOfDay: Int, toast: Toaster): Boolean {
-  //  toast("$ld to $nd, " + (nd != ld))
+fun State.firstOpen(startOfDay: Int): Boolean {
   return lastDayStreak != Timestamp.getDefaultInstance()
           && (lastDayStreak.realDay(startOfDay).dayOfYear
           != now().realDay(startOfDay).dayOfYear)

@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
         val toastLong = useToast(LocalContext.current, Toast.LENGTH_LONG)
 
         // first time loading the app for the day
-        if (state.firstOpen(settings.startOfDay, toast)) {
+        if (state.firstOpen(settings.startOfDay)) {
           updateState { it.onFirstOpen(toastLong, settings) }
         }
 

@@ -2,7 +2,11 @@ package com.example.timehelm.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -32,7 +36,7 @@ fun HomeScreen(state: State, settings: Settings, updateState: StateUpdate, toast
   // use the now variable to determine the current time
   var now by remember { mutableStateOf(now()) }
   LaunchedEffect(Unit) { // refresh every five seconds
-    while(true) {
+    while (true) {
       now = now()
       delay(5000)
     }
@@ -44,14 +48,46 @@ fun HomeScreen(state: State, settings: Settings, updateState: StateUpdate, toast
       .fillMaxWidth()
       .fillMaxHeight()
       .padding(20.dp)
+      .scrollable(rememberScrollState(), Orientation.Vertical)
   ) {
     Spacer(modifier = Modifier.padding(20.dp))
     StateIndicator(streak = state.streakDays, xp = state.xp)
     TimeClock(state, now)
     Message(state, settings, now)
     TrackingButton(state.isTracking, updateState)
-    Spacer(modifier = Modifier.padding(20.dp))
+    Spacer(modifier = Modifier.padding(10.dp))
     ManualModifyTime(updateState, toast)
+    GoalsPopup(state.xpGoalsMap.filter { it.value }.map { it.key })
+  }
+}
+
+@Composable
+fun GoalsPopup(xpGoals: List<String>) {
+  var isOpen by remember { mutableStateOf(false) }
+  Button({ isOpen = true }) {
+    Text("Check Goals", fontSize = 20.sp)
+  }
+  if (isOpen) {
+    AlertDialog(
+      onDismissRequest = { isOpen = false },
+      title = {
+        Text("Goals Finished Today", fontSize = 30.sp)
+      },
+      text = {
+        Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+          xpGoals.forEach {
+            messages[it]?.let { message ->
+              Text(message, fontSize = 25.sp)
+            }
+          }
+        }
+      },
+      confirmButton = {
+        Button({ isOpen = false }) {
+          Text("Close", fontSize = 20.sp)
+        }
+      }
+    )
   }
 }
 
@@ -80,7 +116,6 @@ fun TimeClock(state: State, now: Timestamp) {
         fontSize = 80.sp,
         color = mainColor,
         modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp)
-
       )
     }
   }

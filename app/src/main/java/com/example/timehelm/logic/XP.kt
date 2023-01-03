@@ -33,7 +33,7 @@ private const val SESSION_90MIN = "STREAK_90MIN"
 //Working for 180 minutes (3 hr) at a stretch
 private const val SESSION_180MIN = "STREAK_180MIN"
 
-private val messages = hashMapOf(
+val messages = hashMapOf(
   SECOND_CHECK_IN to "Second punch in of the day",
   START_PRE_10 to "Started before 10am",
   PROGRESS_NOON to "25% of goal minimum by noon",
