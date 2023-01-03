@@ -117,7 +117,7 @@ fun CatchPokemon(
         if (catchProbability.didCatch()) {
           caughtState = R.string.caught_text
           state.addPokemon(updatePokemon, data)
-          updateState { it.setPrevXp(it.prevXp - 1) } // todo change subtracted val
+          updateState { it.setPrevXp(it.prevXp - 5) } // todo change subtracted val
         } else {
           caughtState = R.string.escaped_text
         }
@@ -229,20 +229,6 @@ fun PokemonScreen() {
 
   Section(Modifier.padding(15.dp), 10.dp) {
     Text(text = "Pokemon", fontSize = 40.sp)
-    Row {
-      Button({ hours = pickId().toLong() }) {
-        Text("new")
-      }
-      Button({ storedPokemon.addPokemon(updatePokemon, pokemonData) }) {
-        Text("Add")
-      }
-      Button({ updatePokemon { it.clearPokemon() } }) {
-        Text("Clear")
-      }
-      Button({ updatePokemon { it.setAttempted(false) } }) {
-        Text("attempt")
-      }
-    }
     pokemonData?.let {
       CatchPokemon(
         timeState.xp,

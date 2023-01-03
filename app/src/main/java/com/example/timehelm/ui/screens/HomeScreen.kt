@@ -3,8 +3,6 @@ package com.example.timehelm.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -54,19 +52,6 @@ fun HomeScreen(state: State, settings: Settings, updateState: StateUpdate, toast
     TrackingButton(state.isTracking, updateState)
     Spacer(modifier = Modifier.padding(20.dp))
     ManualModifyTime(updateState, toast)
-    Text("${state.timeWorked.seconds}")
-    Column(Modifier.verticalScroll(rememberScrollState())) {
-      Row {
-        Button({ updateState { it.onFirstOpen(toast, settings) } }) { Text("open") }
-        Button({ updateState { it.clearPrevXp().clearXpGoals() } }) { Text("0XP") }
-        Button({ updateState { it.setPrevXp(it.prevXp + 1) } }) { Text("+XP") }
-        Button({ updateState { it.clearStreakDays() } }) { Text("0S") }
-        Button({ updateState { it.setStreakDays(it.streakDays + 1) } }) { Text("+S") }
-      }
-      Row {
-        Button({ updateState { it.setLastDayStreak(Timestamp.getDefaultInstance().toBuilder().setSeconds(10)) } }) { Text("log") }
-      }
-    }
   }
 }
 

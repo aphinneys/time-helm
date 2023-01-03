@@ -35,16 +35,6 @@ fun SettingsScreen(settings: Settings, updateSettings: SettingsUpdate) {
     }
     BodySection {
       Setting(
-        name = "Difficulty Level Avg",
-        value = settings.difficultyAvg
-      ) { v -> updateSettings { it.setDifficultyAvg(v) } }
-      Setting(
-        name = "Difficulty Variance",
-        value = settings.difficultyVariance
-      ) { v -> updateSettings { it.setDifficultyVariance(v) } }
-    }
-    BodySection {
-      Setting(
         name = "Vacation (TODO)",
         value = settings.vacationDays
       ) { v -> updateSettings { it.setVacationDays(v) } }
