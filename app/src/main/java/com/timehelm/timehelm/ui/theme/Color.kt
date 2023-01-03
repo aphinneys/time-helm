@@ -1,4 +1,4 @@
-package com.example.timehelm.ui.theme
+package com.timehelm.timehelm.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -1,7 +1,7 @@
-package com.example.timehelm.logic
+package com.timehelm.timehelm.logic
 
-import com.example.timehelm.state.Settings
-import com.example.timehelm.state.State
+import com.timehelm.timehelm.state.Settings
+import com.timehelm.timehelm.state.State
 import com.google.protobuf.Timestamp
 import java.time.LocalDate
 

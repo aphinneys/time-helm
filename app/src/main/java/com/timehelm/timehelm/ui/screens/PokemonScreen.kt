@@ -1,4 +1,4 @@
-package com.example.timehelm.ui.screens
+package com.timehelm.timehelm.ui.screens
 
 import android.widget.Toast
 import androidx.annotation.StringRes
@@ -28,11 +28,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
-import com.example.timehelm.R
-import com.example.timehelm.logic.*
-import com.example.timehelm.state.*
-import com.example.timehelm.state.State
-import com.example.timehelm.ui.theme.Shapes
+import com.timehelm.timehelm.R
+import com.timehelm.timehelm.logic.*
+import com.timehelm.timehelm.state.*
+import com.timehelm.timehelm.state.State
+import com.timehelm.timehelm.ui.theme.Shapes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.Integer.min

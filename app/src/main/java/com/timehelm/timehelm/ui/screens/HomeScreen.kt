@@ -1,4 +1,4 @@
-package com.example.timehelm.ui.screens
+package com.timehelm.timehelm.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -16,13 +16,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.timehelm.R
-import com.example.timehelm.logic.*
-import com.example.timehelm.state.Settings
-import com.example.timehelm.state.State
-import com.example.timehelm.state.StateUpdate
-import com.example.timehelm.state.isFullyInitialized
 import com.google.protobuf.Timestamp
+import com.timehelm.timehelm.R
+import com.timehelm.timehelm.logic.*
+import com.timehelm.timehelm.state.Settings
+import com.timehelm.timehelm.state.State
+import com.timehelm.timehelm.state.StateUpdate
+import com.timehelm.timehelm.state.isFullyInitialized
 import kotlinx.coroutines.delay
 
 @Composable

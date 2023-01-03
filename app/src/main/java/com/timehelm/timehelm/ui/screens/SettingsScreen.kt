@@ -1,4 +1,4 @@
-package com.example.timehelm.ui.screens
+package com.timehelm.timehelm.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -8,8 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.timehelm.state.Settings
-import com.example.timehelm.state.SettingsUpdate
+import com.timehelm.timehelm.state.Settings
+import com.timehelm.timehelm.state.SettingsUpdate
 import java.lang.Integer.max
 
 @Composable

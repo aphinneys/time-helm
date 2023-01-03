@@ -1,4 +1,4 @@
-package com.example.timehelm
+package com.timehelm.timehelm
 
 import android.os.Bundle
 import android.widget.Toast
@@ -24,15 +24,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.timehelm.logic.checkGoals
-import com.example.timehelm.logic.firstOpen
-import com.example.timehelm.logic.onFirstOpen
-import com.example.timehelm.logic.useToast
-import com.example.timehelm.state.*
-import com.example.timehelm.ui.screens.HomeScreen
-import com.example.timehelm.ui.screens.PokemonScreen
-import com.example.timehelm.ui.screens.SettingsScreen
-import com.example.timehelm.ui.theme.TimeHelmTheme
+import com.timehelm.timehelm.logic.checkGoals
+import com.timehelm.timehelm.logic.firstOpen
+import com.timehelm.timehelm.logic.onFirstOpen
+import com.timehelm.timehelm.logic.useToast
+import com.timehelm.timehelm.state.*
+import com.timehelm.timehelm.ui.screens.HomeScreen
+import com.timehelm.timehelm.ui.screens.PokemonScreen
+import com.timehelm.timehelm.ui.screens.SettingsScreen
+import com.timehelm.timehelm.ui.theme.TimeHelmTheme
 import kotlinx.coroutines.delay
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int) {

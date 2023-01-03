@@ -1,9 +1,9 @@
-package com.example.timehelm.logic
+package com.timehelm.timehelm.logic
 
-import com.example.timehelm.state.Settings
-import com.example.timehelm.state.State
-import com.example.timehelm.state.StateOrBuilder
-import com.example.timehelm.state.StateUpdate
+import com.timehelm.timehelm.state.Settings
+import com.timehelm.timehelm.state.State
+import com.timehelm.timehelm.state.StateOrBuilder
+import com.timehelm.timehelm.state.StateUpdate
 import java.time.*
 import java.time.chrono.ChronoLocalDateTime
 

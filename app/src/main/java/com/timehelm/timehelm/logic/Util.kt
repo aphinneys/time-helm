@@ -1,10 +1,10 @@
-package com.example.timehelm.logic
+package com.timehelm.timehelm.logic
 
 import android.content.Context
 import android.widget.Toast
-import com.example.timehelm.state.State
-import com.example.timehelm.state.StateOrBuilder
 import com.google.protobuf.Timestamp
+import com.timehelm.timehelm.state.State
+import com.timehelm.timehelm.state.StateOrBuilder
 import java.lang.Integer.max
 import java.lang.Long.min
 import java.time.Instant

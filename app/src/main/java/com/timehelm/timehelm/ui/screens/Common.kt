@@ -1,4 +1,4 @@
-package com.example.timehelm.ui.screens
+package com.timehelm.timehelm.ui.screens
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
