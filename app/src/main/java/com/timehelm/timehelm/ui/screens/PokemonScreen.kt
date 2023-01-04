@@ -1,6 +1,5 @@
 package com.timehelm.timehelm.ui.screens
 
-import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -35,7 +34,7 @@ import com.timehelm.timehelm.state.State
 import com.timehelm.timehelm.ui.theme.Shapes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.lang.Integer.min
+import java.lang.Integer.max
 
 
 fun hour(): Long {
@@ -119,7 +118,7 @@ fun CatchPokemon(
         if (catchProbability.didCatch()) {
           caughtState = R.string.caught_text
           state.addPokemon(updatePokemon, data)
-          updateState { it.setPrevXp(it.prevXp - min(5, it.todayXp)) } // todo change subtracted val
+          updateState { it.setPrevXp(max(it.prevXp - 5, -it.todayXp)) } // todo change subtracted val
         } else {
           caughtState = R.string.escaped_text
         }
