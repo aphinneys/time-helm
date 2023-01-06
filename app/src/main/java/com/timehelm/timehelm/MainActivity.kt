@@ -33,6 +33,7 @@ import com.timehelm.timehelm.ui.screens.HomeScreen
 import com.timehelm.timehelm.ui.screens.PokemonScreen
 import com.timehelm.timehelm.ui.screens.SettingsScreen
 import com.timehelm.timehelm.ui.theme.TimeHelmTheme
+import com.timehelm.timehelm.ui.theme.getColorForTrackingState
 import kotlinx.coroutines.delay
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int) {
@@ -109,7 +110,8 @@ class MainActivity : ComponentActivity() {
                 )
               }
             }
-          }
+          },
+          backgroundColor = getColorForTrackingState(state.isTracking)
         ) { innerPadding ->
           NavHost(
             navController,

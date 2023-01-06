@@ -118,7 +118,14 @@ fun CatchPokemon(
         if (catchProbability.didCatch()) {
           caughtState = R.string.caught_text
           state.addPokemon(updatePokemon, data)
-          updateState { it.setPrevXp(max(it.prevXp - 5, -it.todayXp)) } // todo change subtracted val
+          updateState {
+            it.setPrevXp(
+              max(
+                it.prevXp - 5,
+                -it.todayXp
+              )
+            )
+          } // todo change subtracted val
         } else {
           caughtState = R.string.escaped_text
         }
@@ -216,7 +223,9 @@ fun PokemonScreen() {
   // set up state/updaters
   val timeState by LocalContext.current.stateDataStore.data.collectAsState(State.getDefaultInstance())
   val updateTimeState = useUpdateState(rememberCoroutineScope(), LocalContext.current)
-  val pokemonState by LocalContext.current.pokemonDataStore.data.collectAsState(PokemonState.newBuilder().setAttemptHour(hour()).build())
+  val pokemonState by LocalContext.current.pokemonDataStore.data.collectAsState(
+    PokemonState.newBuilder().setAttemptHour(hour()).build()
+  )
   val updatePokemonState = useUpdatePokemon(rememberCoroutineScope(), LocalContext.current)
   val pokemon = remember(pokemonState.pokemonList) {
     pokemonState.pokemonList.sortedWith { p1, p2 -> p1.id.compareTo(p2.id) }
@@ -225,7 +234,9 @@ fun PokemonScreen() {
   var pokemonData: PokemonData? by remember { mutableStateOf(null) }
   LaunchedEffect(hours) {
     if (hours != pokemonState.attemptHour) {
-      updatePokemonState { it.setAttempted(false).setAttemptHour(hours).setCurrentPokemonId(pickId()) }
+      updatePokemonState {
+        it.setAttempted(false).setAttemptHour(hours).setCurrentPokemonId(pickId())
+      }
     }
   }
   LaunchedEffect(pokemonState.currentPokemonId) {
@@ -233,7 +244,7 @@ fun PokemonScreen() {
   }
 
   Section(Modifier.padding(15.dp), 10.dp) {
-    Text(text = "Pokemon", fontSize = 40.sp)
+    T40("Pokemon")
     pokemonData?.let {
       CatchPokemon(
         timeState.xp,

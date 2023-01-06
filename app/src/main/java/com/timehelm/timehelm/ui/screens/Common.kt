@@ -9,9 +9,12 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -40,7 +43,7 @@ fun Section(modifier: Modifier, spacing: Dp, content: @Composable () -> Unit) {
 fun Setting(name: String, value: Int, setValue: (Int) -> Unit) {
   Row(verticalAlignment = Alignment.CenterVertically) {
     if (name.isNotEmpty()) {
-      Text(text = "$name: ", fontSize = 30.sp)
+      T30("$name: ")
     }
     OutlinedTextField(
       value = if (value >= 0) value.toString() else "",
@@ -57,10 +60,77 @@ fun Setting(name: String, value: Int, setValue: (Int) -> Unit) {
       keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
       textStyle = TextStyle(
         fontSize = 30.sp,
+        color = MaterialTheme.colors.onBackground,
       ),
       modifier = Modifier.width(90.dp),
       singleLine = true,
     )
   }
+}
 
+@Composable
+fun Header(
+  fontSize: TextUnit,
+  message: String,
+  modifier: Modifier,
+  fontStyle: FontStyle?,
+  color: Color?
+) {
+  Text(
+    text = message,
+    fontSize = fontSize,
+    fontStyle = fontStyle,
+    modifier = modifier,
+    color = color ?: MaterialTheme.colors.onBackground
+  )
+}
+
+@Composable
+fun T40(
+  text: String,
+  modifier: Modifier = Modifier,
+  fontStyle: FontStyle? = null,
+  color: Color? = null
+) {
+  Header(40.sp, text, modifier, fontStyle, color)
+}
+
+@Composable
+fun T30(
+  text: String,
+  modifier: Modifier = Modifier,
+  fontStyle: FontStyle? = null,
+  color: Color? = null
+) {
+  Header(30.sp, text, modifier, fontStyle, color)
+}
+
+@Composable
+fun T25(
+  text: String,
+  modifier: Modifier = Modifier,
+  fontStyle: FontStyle? = null,
+  color: Color? = null
+) {
+  Header(25.sp, text, modifier, fontStyle, color)
+}
+
+@Composable
+fun T20(
+  text: String,
+  modifier: Modifier = Modifier,
+  fontStyle: FontStyle? = null,
+  color: Color? = null
+) {
+  Header(20.sp, text, modifier, fontStyle, color)
+}
+
+@Composable
+fun T10(
+  text: String,
+  modifier: Modifier = Modifier,
+  fontStyle: FontStyle? = null,
+  color: Color? = null
+) {
+  Header(10.sp, text, modifier, fontStyle, color)
 }

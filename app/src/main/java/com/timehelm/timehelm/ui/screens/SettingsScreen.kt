@@ -3,11 +3,9 @@ package com.timehelm.timehelm.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.timehelm.timehelm.state.Settings
 import com.timehelm.timehelm.state.SettingsUpdate
 import java.lang.Integer.max
@@ -15,9 +13,9 @@ import java.lang.Integer.max
 @Composable
 fun SettingsScreen(settings: Settings, updateSettings: SettingsUpdate) {
   Section(Modifier.padding(15.dp), 10.dp) {
-    Text(text = "Settings", fontSize = 40.sp)
+    T40("Settings")
     BodySection {
-      Text(text = "Goal daily hours range:", fontSize = 30.sp)
+      T30("Goal daily hours range:")
       Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         Setting(
           name = "Min",

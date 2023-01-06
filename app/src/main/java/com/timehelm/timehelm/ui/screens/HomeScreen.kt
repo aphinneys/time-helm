@@ -65,30 +65,30 @@ fun HomeScreen(state: State, settings: Settings, updateState: StateUpdate, toast
 fun GoalsPopup(xpGoals: List<String>) {
   var isOpen by remember { mutableStateOf(false) }
   Button({ isOpen = true }) {
-    Text("Check Goals", fontSize = 20.sp)
+    T20("Check Goals")
   }
   if (isOpen) {
     AlertDialog(
       onDismissRequest = { isOpen = false },
       title = {
-        Text("Goals Finished Today", fontSize = 30.sp)
+        T30("Goals Finished Today")
       },
       text = {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
           if (xpGoals.isEmpty()) {
-            Text("None so far!", fontStyle = FontStyle.Italic, fontSize = 25.sp)
+            T25("None so far!", fontStyle = FontStyle.Italic)
           } else {
-          xpGoals.forEach {
-            messages[it]?.let { message ->
-              Text("⭐ $message", fontSize = 25.sp)
+            xpGoals.forEach {
+              messages[it]?.let { message ->
+                T25("⭐ $message")
+              }
             }
-          }
           }
         }
       },
       confirmButton = {
         Button({ isOpen = false }) {
-          Text("Close", fontSize = 20.sp)
+          T20("Close")
         }
       }
     )
@@ -99,9 +99,9 @@ fun GoalsPopup(xpGoals: List<String>) {
 @Composable
 fun StateIndicator(streak: Int, xp: Int) {
   Row(modifier = Modifier.padding(20.dp)) {
-    Text(text = "\uD83D\uDD25 $streak", fontSize = 40.sp, color = Color(235, 129, 16))
+    T40("\uD83D\uDD25 $streak", color = Color(235, 129, 16))
     Spacer(modifier = Modifier.padding(20.dp))
-    Text(text = "\uD83D\uDCA0 $xp", fontSize = 40.sp, color = Color(16, 107, 235))
+    T40("\uD83D\uDCA0 $xp", color = Color(16, 107, 235))
   }
 }
 
@@ -127,7 +127,7 @@ fun TimeClock(state: State, now: Timestamp) {
 
 @Composable
 fun Message(state: State, settings: Settings, now: Timestamp) {
-  Text(
+  T40(
     stringResource(
       when (state.elapsedHours(now)) {
         0 -> {
@@ -143,7 +143,7 @@ fun Message(state: State, settings: Settings, now: Timestamp) {
           R.string.done_message
         }
       }
-    ), fontStyle = FontStyle.Italic, fontSize = 40.sp, modifier = Modifier.padding(10.dp)
+    ), fontStyle = FontStyle.Italic, modifier = Modifier.padding(10.dp)
   )
 }
 
@@ -179,10 +179,10 @@ fun ManualModifyTime(updateState: StateUpdate, toast: Toaster) {
     }
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
       Button(onClick = modifyTime(hr, min, updateState, toast, "Added") { a, b -> a + b }) {
-        Text(text = "Add", fontSize = 20.sp)
+        T20("Add")
       }
       Button(onClick = modifyTime(hr, min, updateState, toast, "Removed") { a, b -> a - b }) {
-        Text(text = "Remove", fontSize = 20.sp)
+        T20("Remove")
       }
     }
   }
@@ -202,15 +202,6 @@ fun TrackingButton(isTracking: Boolean, updateState: StateUpdate) {
       it.setIsTracking(!it.isTracking)
     }
   }) {
-    Text(
-      text = stringResource(
-        if (isTracking) {
-          R.string.tracking_message
-        } else {
-          R.string.not_tracking_message
-        }
-      ),
-      fontSize = 30.sp,
-    )
+    T30(stringResource(if (isTracking) R.string.tracking_message else R.string.not_tracking_message))
   }
 }
