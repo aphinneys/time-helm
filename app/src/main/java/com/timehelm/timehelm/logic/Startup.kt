@@ -1,8 +1,8 @@
 package com.timehelm.timehelm.logic
 
+import com.google.protobuf.Timestamp
 import com.timehelm.timehelm.state.Settings
 import com.timehelm.timehelm.state.State
-import com.google.protobuf.Timestamp
 import java.time.LocalDate
 
 
@@ -31,14 +31,15 @@ fun State.Builder.onFirstOpen(toast: Toaster, settings: Settings): State.Builder
   }
 
   // xp
-  prevXp += xpGoalsMap.count { it.value }
+  prevXp += todayXp
   clearXpGoals()
 
   // streak
   //  lastDayStreak = now.toBuilder().setSeconds(now.seconds - (24 * 60 * 60)).build()
   //  toast(lastDayStreak.realDay(startOfDay).toString() + " to " + now.toLocalDate().toString())
   if (lastDayStreak.realDay(settings.startOfDay).isPrevDay(now.realDay(settings.startOfDay))
-    && (settings.dailyHoursMin..settings.dailyHoursMax).contains(timeWorked.hours)) {
+    && (settings.dailyHoursMin..settings.dailyHoursMax).contains(timeWorked.hours)
+  ) {
     streakDays++
     // could add more fun stuff here
   } else {
@@ -52,4 +53,3 @@ fun State.Builder.onFirstOpen(toast: Toaster, settings: Settings): State.Builder
 
   return this
 }
-

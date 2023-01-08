@@ -222,11 +222,11 @@ fun PokemonScreen() {
   }
   // set up state/updaters
   val timeState by LocalContext.current.stateDataStore.data.collectAsState(State.getDefaultInstance())
-  val updateTimeState = useUpdateState(rememberCoroutineScope(), LocalContext.current)
+  val updateTimeState = useUpdateState()
   val pokemonState by LocalContext.current.pokemonDataStore.data.collectAsState(
     PokemonState.newBuilder().setAttemptHour(hour()).build()
   )
-  val updatePokemonState = useUpdatePokemon(rememberCoroutineScope(), LocalContext.current)
+  val updatePokemonState = useUpdatePokemon()
   val pokemon = remember(pokemonState.pokemonList) {
     pokemonState.pokemonList.sortedWith { p1, p2 -> p1.id.compareTo(p2.id) }
   }

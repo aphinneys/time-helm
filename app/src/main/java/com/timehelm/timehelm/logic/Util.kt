@@ -2,6 +2,8 @@ package com.timehelm.timehelm.logic
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import com.google.protobuf.Timestamp
 import com.timehelm.timehelm.state.State
 import com.timehelm.timehelm.state.StateOrBuilder
@@ -13,7 +15,9 @@ import java.time.ZoneId
 
 typealias Toaster = (String) -> Unit
 
-fun useToast(context: Context, duration: Int): Toaster {
+@Composable
+fun useToast(duration: Int): Toaster {
+  val context = LocalContext.current
   return { Toast.makeText(context, it, duration).show() }
 }
 

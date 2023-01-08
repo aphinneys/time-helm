@@ -74,7 +74,10 @@ fun GoalsPopup(xpGoals: List<String>) {
         T30("Goals Finished Today")
       },
       text = {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(
+          Modifier.verticalScroll(rememberScrollState()),
+          verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
           if (xpGoals.isEmpty()) {
             T25("None so far!", fontStyle = FontStyle.Italic)
           } else {
