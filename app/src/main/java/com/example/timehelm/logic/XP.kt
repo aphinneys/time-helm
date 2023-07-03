@@ -35,10 +35,10 @@ private const val SESSION_180MIN = "STREAK_180MIN"
 
 private val messages = hashMapOf(
   SECOND_CHECK_IN to "Second punch in of the day",
-  START_PRE_10 to "Started before 10am",
-  PROGRESS_NOON to "25% of goal minimum by noon",
-  PROGRESS_3PM to "50% of goal minimum by 3pm",
-  PROGRESS_6PM to "75% of goal minimum by 6pm",
+  START_PRE_10 to "Started by work start time",
+  PROGRESS_NOON to "25% of goal minimum by 2hrs",
+  PROGRESS_3PM to "50% of goal minimum by 5hrs",
+  PROGRESS_6PM to "75% of goal minimum by 8hrs",
   SESSION_45MIN to "Worked for a 45 min stretch",
   SESSION_90MIN to "Worked for a 90 min stretch",
   SESSION_180MIN to "Worked for a 180 min stretch",
@@ -61,26 +61,27 @@ fun dateTime(time: LocalTime): ChronoLocalDateTime<*> {
   return ChronoLocalDateTime.from(ZonedDateTime.of(LocalDate.now(), time, ZoneId.systemDefault()))
 }
 
-fun time10am(): ChronoLocalDateTime<*> {
-  return dateTime(LocalTime.of(10, 0))
+fun time10am(int: workStart): ChronoLocalDateTime<*> {
+  return dateTime(LocalTime.of(workStart, 0)) 
 }
 
-fun timeNoon(): ChronoLocalDateTime<*> {
-  return dateTime(LocalTime.NOON)
+fun timeNoon(int: workStart): ChronoLocalDateTime<*> {
+  return dateTime(LocalTime.of(workStart + 2, 0))
 }
 
-fun time3pm(): ChronoLocalDateTime<*> {
-  return dateTime(LocalTime.of(15, 0))
+fun time3pm(int: workStart): ChronoLocalDateTime<*> {
+  return dateTime(LocalTime.of(workStart + 5, 0))
 }
 
-fun time6pm(): ChronoLocalDateTime<*> {
-  return dateTime(LocalTime.of(18, 0))
+fun time6pm(int: workStart): ChronoLocalDateTime<*> {
+  return dateTime(LocalTime.of(workStart + 8, 0))
 }
 
 fun State.checkTimeCompletionGoal(
   goals: HashMap<String, Boolean>,
   completionGoal: String,
   dailyHoursMin: Int,
+  workStart: Int, 
   time: ChronoLocalDateTime<*>,
   progress: Float
 ) {
@@ -109,10 +110,10 @@ fun State.checkGoals(update: StateUpdate, settings: Settings, toast: Toaster) {
   val goals = HashMap(xpGoalsMap)
 
   // time of day based goals
-  checkTimeCompletionGoal(goals, START_PRE_10, settings.dailyHoursMin, time10am(), 0f)
-  checkTimeCompletionGoal(goals, PROGRESS_NOON, settings.dailyHoursMin, timeNoon(), .25f)
-  checkTimeCompletionGoal(goals, PROGRESS_3PM, settings.dailyHoursMin, time3pm(), .5f)
-  checkTimeCompletionGoal(goals, PROGRESS_6PM, settings.dailyHoursMin, time6pm(), .75f)
+  checkTimeCompletionGoal(goals, START_PRE_10, settings.dailyHoursMin, time10am(settings.workStart), 0f)
+  checkTimeCompletionGoal(goals, PROGRESS_NOON, settings.dailyHoursMin, timeNoon(settings.workStart), .25f)
+  checkTimeCompletionGoal(goals, PROGRESS_3PM, settings.dailyHoursMin, time3pm(settings.workStart), .5f)
+  checkTimeCompletionGoal(goals, PROGRESS_6PM, settings.dailyHoursMin, time6pm(settings.workStart), .75f)
 
   // session based goals
   checkSessionLengthGoal(goals, SESSION_45MIN, 45)

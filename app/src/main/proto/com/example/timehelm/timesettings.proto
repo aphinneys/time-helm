@@ -10,5 +10,5 @@ message Settings {
   int32 dailyHoursMin = 1;
   int32 dailyHoursMax = 2;
   bool shabbat = 3;
-
+  int32 workStart = 4;
 }

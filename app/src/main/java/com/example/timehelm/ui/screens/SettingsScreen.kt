@@ -39,4 +39,10 @@ fun SettingsScreen(settings: Settings, updateSettings: SettingsUpdate) {
         updateSettings { s -> s.setShabbat(it) }
       }
     }
+  BodySection {
+      NumberSetting(name = "Work Starts", value = settings.workstart) {
+        updateSettings { s -> s.setWorkStart(it) }
+      }
+      // throw an error if work start + min > 24 ??
+    }
 }
