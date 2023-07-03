@@ -37,11 +37,19 @@ fun Section(modifier: Modifier, spacing: Dp, content: @Composable () -> Unit) {
 }
 
 @Composable
-fun Setting(name: String, value: Int, setValue: (Int) -> Unit) {
-  Row(verticalAlignment = Alignment.CenterVertically) {
+fun Setting(name: String, inner: @Composable () -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
     if (name.isNotEmpty()) {
-      Text(text = "$name: ", fontSize = 30.sp)
+      T30("$name: ")
+      T30("$name: ", Modifier.padding(horizontal = 10.dp))
     }
+    inner()
+  }
+}
+
+@Composable
+fun NumberSetting(name: String, value: Int, setValue: (Int) -> Unit) {
+  Setting(name) {
     OutlinedTextField(
       value = if (value >= 0) value.toString() else "",
       onValueChange = {
@@ -57,10 +65,17 @@ fun Setting(name: String, value: Int, setValue: (Int) -> Unit) {
       keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
       textStyle = TextStyle(
         fontSize = 30.sp,
+        color = MaterialTheme.colors.onBackground,
       ),
       modifier = Modifier.width(90.dp),
       singleLine = true,
     )
   }
+}
 
+@Composable
+fun ToggleSetting(name: String, value: Boolean, setValue: (Boolean) -> Unit) {
+  Setting(name) {
+    Switch(checked = value, onCheckedChange = setValue)
+  }
 }
