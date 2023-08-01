@@ -178,7 +178,8 @@ fun PokemonList(pokemon: List<Pokemon>) {
     items(items = pokemon, key = { it.id }) {
       Card(
         elevation = 10.dp,
-        shape = Shapes.medium,app/src/main/java/com/example/timehelm/ui/screens/SettingsScreen.kt
+        shape = Shapes.medium,
+        modifier = Modifier
           .fillMaxWidth()
           .background(MaterialTheme.colors.surface)
           .padding(vertical = 5.dp)
