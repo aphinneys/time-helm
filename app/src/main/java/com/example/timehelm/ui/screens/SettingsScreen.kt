@@ -40,7 +40,7 @@ fun SettingsScreen(settings: Settings, updateSettings: SettingsUpdate) {
       }
     }
   BodySection {
-      NumberSetting(name = "Work Starts", value = settings.workstart) {
+      NumberSetting(name = "Work Starts", value = settings.workStart) {
         updateSettings { s -> s.setWorkStart(it) }
       }
       // throw an error if work start + min > 24 ??

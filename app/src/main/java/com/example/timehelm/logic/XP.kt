@@ -16,13 +16,13 @@ private const val SECOND_CHECK_IN = "SECOND_CHECK_IN"
 private const val START_PRE_10 = "START_PRE_10"
 
 //Being 25% of the way to goal minimum hours by noon
-private const val PROGRESS_NOON = "PROGRESS_NOON"
+private const val PROGRESS_2HR = "PROGRESS_NOON"
 
 //Being 50% of the way to goal minimum hours by 3pm
-private const val PROGRESS_3PM = "PROGRESS_3PM"
+private const val PROGRESS_5HR = "PROGRESS_3PM"
 
 //Being 75% of the way to goal minimum hours by 6pm
-private const val PROGRESS_6PM = "PROGRESS_6PM"
+private const val PROGRESS_8HR = "PROGRESS_6PM"
 
 //Working for 45 minutes at a stretch (e.g. a single “I’m working” session length)
 private const val SESSION_45MIN = "STREAK_45MIN"
@@ -36,9 +36,9 @@ private const val SESSION_180MIN = "STREAK_180MIN"
 private val messages = hashMapOf(
   SECOND_CHECK_IN to "Second punch in of the day",
   START_PRE_10 to "Started by work start time",
-  PROGRESS_NOON to "25% of goal minimum by 2hrs",
-  PROGRESS_3PM to "50% of goal minimum by 5hrs",
-  PROGRESS_6PM to "75% of goal minimum by 8hrs",
+  PROGRESS_2HR to "25% of goal minimum by 2hrs",
+  PROGRESS_5HR to "50% of goal minimum by 5hrs",
+  PROGRESS_8HR to "75% of goal minimum by 8hrs",
   SESSION_45MIN to "Worked for a 45 min stretch",
   SESSION_90MIN to "Worked for a 90 min stretch",
   SESSION_180MIN to "Worked for a 180 min stretch",
@@ -61,32 +61,15 @@ fun dateTime(time: LocalTime): ChronoLocalDateTime<*> {
   return ChronoLocalDateTime.from(ZonedDateTime.of(LocalDate.now(), time, ZoneId.systemDefault()))
 }
 
-fun time10am(int: workStart): ChronoLocalDateTime<*> {
-  return dateTime(LocalTime.of(workStart, 0)) 
-}
-
-fun timeNoon(int: workStart): ChronoLocalDateTime<*> {
-  return dateTime(LocalTime.of(workStart + 2, 0))
-}
-
-fun time3pm(int: workStart): ChronoLocalDateTime<*> {
-  return dateTime(LocalTime.of(workStart + 5, 0))
-}
-
-fun time6pm(int: workStart): ChronoLocalDateTime<*> {
-  return dateTime(LocalTime.of(workStart + 8, 0))
-}
-
 fun State.checkTimeCompletionGoal(
   goals: HashMap<String, Boolean>,
   completionGoal: String,
   dailyHoursMin: Int,
-  workStart: Int, 
-  time: ChronoLocalDateTime<*>,
+  time: Int,
   progress: Float
 ) {
   if (goals.notCompleted(completionGoal)
-    && LocalDateTime.now().isBefore(time)
+    && LocalDateTime.now().isBefore(dateTime(LocalTime.of(time, 0)))
     && elapsedTime(now()).seconds > dailyHoursMin * 3600 * progress
   ) {
     goals[completionGoal] = true
@@ -110,10 +93,10 @@ fun State.checkGoals(update: StateUpdate, settings: Settings, toast: Toaster) {
   val goals = HashMap(xpGoalsMap)
 
   // time of day based goals
-  checkTimeCompletionGoal(goals, START_PRE_10, settings.dailyHoursMin, time10am(settings.workStart), 0f)
-  checkTimeCompletionGoal(goals, PROGRESS_NOON, settings.dailyHoursMin, timeNoon(settings.workStart), .25f)
-  checkTimeCompletionGoal(goals, PROGRESS_3PM, settings.dailyHoursMin, time3pm(settings.workStart), .5f)
-  checkTimeCompletionGoal(goals, PROGRESS_6PM, settings.dailyHoursMin, time6pm(settings.workStart), .75f)
+  checkTimeCompletionGoal(goals, START_PRE_10, settings.dailyHoursMin, settings.workStart + 0, 0f)
+  checkTimeCompletionGoal(goals, PROGRESS_2HR, settings.dailyHoursMin, settings.workStart + 2, .25f)
+  checkTimeCompletionGoal(goals, PROGRESS_5HR, settings.dailyHoursMin, settings.workStart + 5, .5f)
+  checkTimeCompletionGoal(goals, PROGRESS_8HR, settings.dailyHoursMin, settings.workStart + 8, .75f)
 
   // session based goals
   checkSessionLengthGoal(goals, SESSION_45MIN, 45)

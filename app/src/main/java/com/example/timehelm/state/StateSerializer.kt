@@ -61,7 +61,7 @@ fun useUpdateSettings(scope: CoroutineScope, context: Context): SettingsUpdate =
   updateHook(scope, context) { it.settingsDataStore }
 
 fun Settings.isFullyInitialized(): Boolean {
-  return isInitialized && dailyHoursMax >= 0 && dailyHoursMin >= 0 && dailyHoursMax >= 0 && difficultyAvg >= 0 && difficultyVariance >= 0
+  return isInitialized && dailyHoursMax >= 0 && dailyHoursMin >= 0 && dailyHoursMax >= 0
 }
 
 // POKEMON STATE

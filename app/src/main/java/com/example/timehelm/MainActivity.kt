@@ -24,6 +24,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.timehelm.logic.START_OF_DAY
 import com.example.timehelm.logic.checkGoals
 import com.example.timehelm.logic.firstOpen
 import com.example.timehelm.logic.onFirstOpen
@@ -64,7 +65,7 @@ class MainActivity : ComponentActivity() {
         val toastLong = useToast(LocalContext.current, Toast.LENGTH_LONG)
 
         // first time loading the app for the day
-        if (state.firstOpen(settings.startOfDay, toast)) {
+        if (state.firstOpen(START_OF_DAY, toast)) {
           updateState { it.onFirstOpen(toastLong, settings) }
         }
 
