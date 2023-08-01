@@ -93,14 +93,18 @@ fun State.checkSessionLengthGoal(
 
 }
 
+val Settings.startHour: Int
+  get() = if (workStart >= 0) { workStart } else { 9 }
+
+
 fun State.checkGoals(update: StateUpdate, settings: Settings, toast: Toaster) {
   val goals = HashMap(xpGoalsMap)
 
   // time of day based goals
-  checkTimeCompletionGoal(goals, START_PRE_10, settings.dailyHoursMin, settings.workStart + 0, 0f)
-  checkTimeCompletionGoal(goals, PROGRESS_2HR, settings.dailyHoursMin, settings.workStart + 2, .25f)
-  checkTimeCompletionGoal(goals, PROGRESS_5HR, settings.dailyHoursMin, settings.workStart + 5, .5f)
-  checkTimeCompletionGoal(goals, PROGRESS_8HR, settings.dailyHoursMin, settings.workStart + 8, .75f)
+  checkTimeCompletionGoal(goals, START_PRE_10, settings.dailyHoursMin, settings.startHour + 0, 0f)
+  checkTimeCompletionGoal(goals, PROGRESS_2HR, settings.dailyHoursMin, settings.startHour + 2, .25f)
+  checkTimeCompletionGoal(goals, PROGRESS_5HR, settings.dailyHoursMin, settings.startHour + 5, .5f)
+  checkTimeCompletionGoal(goals, PROGRESS_8HR, settings.dailyHoursMin, settings.startHour + 8, .75f)
 
   // session based goals
   checkSessionLengthGoal(goals, SESSION_45MIN, 45)
