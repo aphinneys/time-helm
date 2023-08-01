@@ -26,20 +26,18 @@ fun SettingsScreen(settings: Settings, updateSettings: SettingsUpdate) {
     T40("Settings")
     BodySection {
       T30("Goal daily hours range:")
-      Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        NumberSetting(
-          name = "Min",
-          value = settings.dailyHoursMin
-        ) { v ->
-          updateSettings {
-            it.setDailyHoursMin(v).setDailyHoursMax(max(it.dailyHoursMax, v))
-          }
+      NumberSetting(
+        name = "Min",
+        value = settings.dailyHoursMin
+      ) { v ->
+        updateSettings {
+          it.setDailyHoursMin(v).setDailyHoursMax(max(it.dailyHoursMax, v))
         }
-        NumberSetting(
-          name = "Max",
-          value = settings.dailyHoursMax
-        ) { v -> updateSettings { it.setDailyHoursMax(v) } }
       }
+      NumberSetting(
+        name = "Max",
+        value = settings.dailyHoursMax
+      ) { v -> updateSettings { it.setDailyHoursMax(v) } }
     }
     BodySection {
       ToggleSetting(name = "Shabbat", value = settings.shabbat) {
