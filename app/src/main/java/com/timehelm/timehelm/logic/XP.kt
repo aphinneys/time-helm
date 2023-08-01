@@ -1,8 +1,9 @@
-package com.example.timehelm.logic
+package com.timehelm.timehelm.logic
 
-import com.example.timehelm.state.Settings
-import com.example.timehelm.state.State
-import com.example.timehelm.state.StateUpdate
+import com.timehelm.timehelm.state.Settings
+import com.timehelm.timehelm.state.State
+import com.timehelm.timehelm.state.StateOrBuilder
+import com.timehelm.timehelm.state.StateUpdate
 import java.time.*
 import java.time.chrono.ChronoLocalDateTime
 
@@ -33,7 +34,7 @@ private const val SESSION_90MIN = "STREAK_90MIN"
 //Working for 180 minutes (3 hr) at a stretch
 private const val SESSION_180MIN = "STREAK_180MIN"
 
-private val messages = hashMapOf(
+val messages = hashMapOf(
   SECOND_CHECK_IN to "Second punch in of the day",
   START_PRE_10 to "Started by work start time",
   PROGRESS_2HR to "25% of goal minimum by 2hrs",
@@ -44,8 +45,11 @@ private val messages = hashMapOf(
   SESSION_180MIN to "Worked for a 180 min stretch",
 )
 
-val State.xp: Int
-  get() = this.prevXp + this.xpGoalsMap.count { it.value }
+val StateOrBuilder.todayXp: Int
+  get() = xpGoalsMap.count { it.value }
+
+val StateOrBuilder.xp: Int
+  get() = prevXp + todayXp
 
 // potentially just use a hashmap
 

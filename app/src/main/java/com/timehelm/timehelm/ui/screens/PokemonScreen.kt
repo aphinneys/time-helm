@@ -1,4 +1,4 @@
-package com.example.timehelm.ui.screens
+package com.timehelm.timehelm.ui.screens
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
@@ -27,13 +27,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
-import com.example.timehelm.R
-import com.example.timehelm.logic.*
-import com.example.timehelm.state.*
-import com.example.timehelm.state.State
-import com.example.timehelm.ui.theme.Shapes
+import com.timehelm.timehelm.R
+import com.timehelm.timehelm.logic.*
+import com.timehelm.timehelm.state.*
+import com.timehelm.timehelm.state.State
+import com.timehelm.timehelm.ui.theme.Shapes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.Integer.max
 
 
 fun hour(): Long {
@@ -117,7 +118,14 @@ fun CatchPokemon(
         if (catchProbability.didCatch()) {
           caughtState = R.string.caught_text
           state.addPokemon(updatePokemon, data)
-          updateState { it.setPrevXp(it.prevXp - 5) } // todo change subtracted val
+          updateState {
+            it.setPrevXp(
+              max(
+                it.prevXp - 5,
+                -it.todayXp
+              )
+            )
+          } // todo change subtracted val
         } else {
           caughtState = R.string.escaped_text
         }
@@ -170,8 +178,7 @@ fun PokemonList(pokemon: List<Pokemon>) {
     items(items = pokemon, key = { it.id }) {
       Card(
         elevation = 10.dp,
-        shape = Shapes.medium,
-        modifier = Modifier
+        shape = Shapes.medium,app/src/main/java/com/example/timehelm/ui/screens/SettingsScreen.kt
           .fillMaxWidth()
           .background(MaterialTheme.colors.surface)
           .padding(vertical = 5.dp)
@@ -212,46 +219,40 @@ fun PokemonScreen() {
       delay(10_000)
     }
   }
-
+  // set up state/updaters
   val timeState by LocalContext.current.stateDataStore.data.collectAsState(State.getDefaultInstance())
-  val updateTimeState = useUpdateState(rememberCoroutineScope(), LocalContext.current)
-  val storedPokemon by LocalContext.current.pokemonDataStore.data.collectAsState(PokemonState.getDefaultInstance())
-  val updatePokemon = useUpdatePokemon(rememberCoroutineScope(), LocalContext.current)
-  val sortedPokemon = remember(storedPokemon.pokemonList) {
-    storedPokemon.pokemonList.sortedWith { p1, p2 -> p1.id.compareTo(p2.id) }
+  val updateTimeState = useUpdateState()
+  val pokemonState by LocalContext.current.pokemonDataStore.data.collectAsState(
+    PokemonState.newBuilder().setAttemptHour(hour()).build()
+  )
+  val updatePokemonState = useUpdatePokemon()
+  val pokemon = remember(pokemonState.pokemonList) {
+    pokemonState.pokemonList.sortedWith { p1, p2 -> p1.id.compareTo(p2.id) }
   }
-  // pokemon
+  // pokemon data fetching
   var pokemonData: PokemonData? by remember { mutableStateOf(null) }
   LaunchedEffect(hours) {
-    pokemonData = getPokemon(pickId())
-    updatePokemon { it.setAttempted(false) }
+    if (hours != pokemonState.attemptHour) {
+      updatePokemonState {
+        it.setAttempted(false).setAttemptHour(hours).setCurrentPokemonId(pickId())
+      }
+    }
+  }
+  LaunchedEffect(pokemonState.currentPokemonId) {
+    pokemonData = getPokemon(pokemonState.currentPokemonId)
   }
 
   Section(Modifier.padding(15.dp), 10.dp) {
-    Text(text = "Pokemon", fontSize = 40.sp)
-    Row {
-      Button({ hours = pickId().toLong() }) {
-        Text("new")
-      }
-      Button({ storedPokemon.addPokemon(updatePokemon, pokemonData) }) {
-        Text("Add")
-      }
-      Button({ updatePokemon { it.clearPokemon() } }) {
-        Text("Clear")
-      }
-      Button({ updatePokemon { it.setAttempted(false) } }) {
-        Text("attempt")
-      }
-    }
+    T40("Pokemon")
     pokemonData?.let {
       CatchPokemon(
         timeState.xp,
         it,
-        storedPokemon,
-        updatePokemon,
+        pokemonState,
+        updatePokemonState,
         updateTimeState,
       )
     }
-    PokemonList(sortedPokemon)
+    PokemonList(pokemon)
   }
 }

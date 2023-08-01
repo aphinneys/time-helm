@@ -1,4 +1,4 @@
-package com.example.timehelm
+package com.timehelm.timehelm
 
 import android.os.Bundle
 import android.widget.Toast
@@ -59,10 +59,10 @@ class MainActivity : ComponentActivity() {
         // Declare all necessary data/helpers
         val state by LocalContext.current.stateDataStore.data.collectAsState(State.getDefaultInstance())
         val settings by LocalContext.current.settingsDataStore.data.collectAsState(Settings.getDefaultInstance())
-        val updateState = useUpdateState(rememberCoroutineScope(), LocalContext.current)
-        val updateSettings = useUpdateSettings(rememberCoroutineScope(), LocalContext.current)
-        val toast = useToast(LocalContext.current, Toast.LENGTH_SHORT)
-        val toastLong = useToast(LocalContext.current, Toast.LENGTH_LONG)
+        val updateState = useUpdateState()
+        val updateSettings = useUpdateSettings()
+        val toast = useToast(Toast.LENGTH_SHORT)
+        val toastLong = useToast(Toast.LENGTH_LONG)
 
         // first time loading the app for the day
         if (state.firstOpen(START_OF_DAY, toast)) {
@@ -110,7 +110,8 @@ class MainActivity : ComponentActivity() {
                 )
               }
             }
-          }
+          },
+          backgroundColor = getColorForTrackingState(state.isTracking)
         ) { innerPadding ->
           NavHost(
             navController,

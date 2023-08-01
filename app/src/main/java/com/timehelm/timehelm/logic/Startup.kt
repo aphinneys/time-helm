@@ -1,8 +1,8 @@
-package com.example.timehelm.logic
+package com.timehelm.timehelm.logic
 
-import com.example.timehelm.state.Settings
-import com.example.timehelm.state.State
 import com.google.protobuf.Timestamp
+import com.timehelm.timehelm.state.Settings
+import com.timehelm.timehelm.state.State
 import java.time.LocalDate
 import android.icu.util.Calendar
 
@@ -38,7 +38,7 @@ fun State.Builder.onFirstOpen(toast: Toaster, settings: Settings): State.Builder
   }
 
   // xp
-  prevXp += xpGoalsMap.count { it.value }
+  prevXp += todayXp
   clearXpGoals()
 
   // streak
@@ -59,4 +59,3 @@ fun State.Builder.onFirstOpen(toast: Toaster, settings: Settings): State.Builder
 
   return this
 }
-

@@ -1,8 +1,8 @@
-package com.example.timehelm.logic
+package com.timehelm.timehelm.logic
 
-import com.example.timehelm.state.Pokemon
-import com.example.timehelm.state.PokemonState
-import com.example.timehelm.state.PokemonUpdate
+import com.timehelm.timehelm.state.Pokemon
+import com.timehelm.timehelm.state.PokemonState
+import com.timehelm.timehelm.state.PokemonUpdate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray

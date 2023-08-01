@@ -1,4 +1,4 @@
-package com.example.timehelm.ui.screens
+package com.timehelm.timehelm.ui.screens
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -111,7 +111,10 @@ fun Setting(name: String, inner: @Composable () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
     if (name.isNotEmpty()) {
       T30("$name: ")
+<<<<<<< HEAD:app/src/main/java/com/example/timehelm/ui/screens/Common.kt
       T30("$name: ", Modifier.padding(horizontal = 10.dp))
+=======
+>>>>>>> main:app/src/main/java/com/timehelm/timehelm/ui/screens/Common.kt
     }
     inner()
   }
@@ -141,6 +144,76 @@ fun NumberSetting(name: String, value: Int, setValue: (Int) -> Unit) {
       singleLine = true,
     )
   }
+<<<<<<< HEAD:app/src/main/java/com/example/timehelm/ui/screens/Common.kt
+=======
+}
+
+@Composable
+fun Header(
+  fontSize: TextUnit,
+  message: String,
+  modifier: Modifier,
+  fontStyle: FontStyle?,
+  color: Color?
+) {
+  Text(
+    text = message,
+    fontSize = fontSize,
+    fontStyle = fontStyle,
+    modifier = modifier,
+    color = color ?: MaterialTheme.colors.onBackground
+  )
+}
+
+@Composable
+fun T40(
+  text: String,
+  modifier: Modifier = Modifier,
+  fontStyle: FontStyle? = null,
+  color: Color? = null
+) {
+  Header(40.sp, text, modifier, fontStyle, color)
+}
+
+@Composable
+fun T30(
+  text: String,
+  modifier: Modifier = Modifier,
+  fontStyle: FontStyle? = null,
+  color: Color? = null
+) {
+  Header(30.sp, text, modifier, fontStyle, color)
+}
+
+@Composable
+fun T25(
+  text: String,
+  modifier: Modifier = Modifier,
+  fontStyle: FontStyle? = null,
+  color: Color? = null
+) {
+  Header(25.sp, text, modifier, fontStyle, color)
+}
+
+@Composable
+fun T20(
+  text: String,
+  modifier: Modifier = Modifier,
+  fontStyle: FontStyle? = null,
+  color: Color? = null
+) {
+  Header(20.sp, text, modifier, fontStyle, color)
+}
+
+@Composable
+fun T10(
+  text: String,
+  modifier: Modifier = Modifier,
+  fontStyle: FontStyle? = null,
+  color: Color? = null
+) {
+  Header(10.sp, text, modifier, fontStyle, color)
+>>>>>>> main:app/src/main/java/com/timehelm/timehelm/ui/screens/Common.kt
 }
 
 @Composable

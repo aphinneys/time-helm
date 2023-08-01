@@ -1,10 +1,11 @@
-package com.example.timehelm.ui.screens
+package com.timehelm.timehelm.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -15,13 +16,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.timehelm.R
-import com.example.timehelm.logic.*
-import com.example.timehelm.state.Settings
-import com.example.timehelm.state.State
-import com.example.timehelm.state.StateUpdate
-import com.example.timehelm.state.isFullyInitialized
 import com.google.protobuf.Timestamp
+import com.timehelm.timehelm.R
+import com.timehelm.timehelm.logic.*
+import com.timehelm.timehelm.state.Settings
+import com.timehelm.timehelm.state.State
+import com.timehelm.timehelm.state.StateUpdate
+import com.timehelm.timehelm.state.isFullyInitialized
 import kotlinx.coroutines.delay
 
 @Composable
@@ -34,7 +35,7 @@ fun HomeScreen(state: State, settings: Settings, updateState: StateUpdate, toast
   // use the now variable to determine the current time
   var now by remember { mutableStateOf(now()) }
   LaunchedEffect(Unit) { // refresh every five seconds
-    while(true) {
+    while (true) {
       now = now()
       delay(5000)
     }
@@ -46,27 +47,54 @@ fun HomeScreen(state: State, settings: Settings, updateState: StateUpdate, toast
       .fillMaxWidth()
       .fillMaxHeight()
       .padding(20.dp)
+      .verticalScroll(rememberScrollState())
   ) {
     Spacer(modifier = Modifier.padding(20.dp))
     StateIndicator(streak = state.streakDays, xp = state.xp)
     TimeClock(state, now)
     Message(state, settings, now)
     TrackingButton(state.isTracking, updateState)
-    Spacer(modifier = Modifier.padding(20.dp))
+    Spacer(modifier = Modifier.padding(10.dp))
     ManualModifyTime(updateState, toast)
-    Column(Modifier.verticalScroll(rememberScrollState())) {
-      Row {
-        Button({ updateState { it.onFirstOpen(toast, settings) } }) { Text("open") }
-        Button({ updateState { it.clearPrevXp().clearXpGoals() } }) { Text("0XP") }
-        Button({ updateState { it.setPrevXp(it.prevXp + 1) } }) { Text("+XP") }
-        Button({ updateState { it.clearStreakDays() } }) { Text("0S") }
-        Button({ updateState { it.setStreakDays(it.streakDays + 1) } }) { Text("+S") }
+    Spacer(modifier = Modifier.padding(10.dp))
+    GoalsPopup(state.xpGoalsMap.filter { it.value }.map { it.key })
+  }
+}
+
+@Composable
+fun GoalsPopup(xpGoals: List<String>) {
+  var isOpen by remember { mutableStateOf(false) }
+  Button({ isOpen = true }) {
+    T20("Check Goals")
+  }
+  if (isOpen) {
+    AlertDialog(
+      onDismissRequest = { isOpen = false },
+      title = {
+        T30("Goals Finished Today")
+      },
+      text = {
+        Column(
+          Modifier.verticalScroll(rememberScrollState()),
+          verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+          if (xpGoals.isEmpty()) {
+            T25("None so far!", fontStyle = FontStyle.Italic)
+          } else {
+            xpGoals.forEach {
+              messages[it]?.let { message ->
+                T25("⭐ $message")
+              }
+            }
+          }
+        }
+      },
+      confirmButton = {
+        Button({ isOpen = false }) {
+          T20("Close")
+        }
       }
-      Row {
-        Button({ updateState { it.setLastDayStreak(Timestamp.getDefaultInstance().toBuilder().setSeconds(10)) } }) { Text("log") }
-        Text("${state.timeWorked.seconds}")
-      }
-    }
+    )
   }
 }
 
@@ -74,9 +102,9 @@ fun HomeScreen(state: State, settings: Settings, updateState: StateUpdate, toast
 @Composable
 fun StateIndicator(streak: Int, xp: Int) {
   Row(modifier = Modifier.padding(20.dp)) {
-    Text(text = "\uD83D\uDD25 $streak", fontSize = 40.sp, color = Color(235, 129, 16))
+    T40("\uD83D\uDD25 $streak", color = Color(235, 129, 16))
     Spacer(modifier = Modifier.padding(20.dp))
-    Text(text = "\uD83D\uDCA0 $xp", fontSize = 40.sp, color = Color(16, 107, 235))
+    T40("\uD83D\uDCA0 $xp", color = Color(16, 107, 235))
   }
 }
 
@@ -95,7 +123,6 @@ fun TimeClock(state: State, now: Timestamp) {
         fontSize = 80.sp,
         color = mainColor,
         modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp)
-
       )
     }
   }
@@ -103,8 +130,8 @@ fun TimeClock(state: State, now: Timestamp) {
 
 @Composable
 fun Message(state: State, settings: Settings, now: Timestamp) {
-  Text(
-    text = stringResource(
+  T40(
+    stringResource(
       when (state.elapsedHours(now)) {
         0 -> {
           R.string.starting_message
@@ -119,7 +146,7 @@ fun Message(state: State, settings: Settings, now: Timestamp) {
           R.string.done_message
         }
       }
-    ), fontStyle = FontStyle.Italic, fontSize = 40.sp, modifier = Modifier.padding(10.dp)
+    ), fontStyle = FontStyle.Italic, modifier = Modifier.padding(10.dp)
   )
 }
 
@@ -155,10 +182,10 @@ fun ManualModifyTime(updateState: StateUpdate, toast: Toaster) {
     }
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
       Button(onClick = modifyTime(hr, min, updateState, toast, "Added") { a, b -> a + b }) {
-        Text(text = "Add", fontSize = 20.sp)
+        T20("Add")
       }
       Button(onClick = modifyTime(hr, min, updateState, toast, "Removed") { a, b -> a - b }) {
-        Text(text = "Remove", fontSize = 20.sp)
+        T20("Remove")
       }
     }
   }
@@ -178,15 +205,6 @@ fun TrackingButton(isTracking: Boolean, updateState: StateUpdate) {
       it.setIsTracking(!it.isTracking)
     }
   }) {
-    Text(
-      text = stringResource(
-        if (isTracking) {
-          R.string.tracking_message
-        } else {
-          R.string.not_tracking_message
-        }
-      ),
-      fontSize = 30.sp,
-    )
+    T30(stringResource(if (isTracking) R.string.tracking_message else R.string.not_tracking_message))
   }
 }

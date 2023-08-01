@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 
-option java_package = "com.example.timehelm.state";
+option java_package = "com.timehelm.timehelm.state";
 option java_multiple_files = true;
 
 message Pokemon {
@@ -15,4 +15,6 @@ message Pokemon {
 message PokemonState {
   repeated Pokemon pokemon = 1;
   bool attempted = 2;
+  uint64 attemptHour = 3;
+  uint32 currentPokemonId = 4;
 }
