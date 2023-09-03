@@ -4,13 +4,20 @@ import com.google.protobuf.Timestamp
 import com.timehelm.timehelm.state.Settings
 import com.timehelm.timehelm.state.State
 import java.time.LocalDate
+import android.icu.util.Calendar
 
+const val START_OF_DAY = 3
 
 fun Timestamp.realDay(startOfDay: Int): LocalDate {
   return toBuilder().setSeconds(seconds - (startOfDay.toLong() * 3600)).build().toLocalDate()
 }
 
-fun State.firstOpen(startOfDay: Int): Boolean {
+fun isSaturday(): Boolean {
+  return Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
+}
+
+fun State.firstOpen(startOfDay: Int, toast: Toaster): Boolean {
+  //  toast("$ld to $nd, " + (nd != ld))
   return lastDayStreak != Timestamp.getDefaultInstance()
           && (lastDayStreak.realDay(startOfDay).dayOfYear
           != now().realDay(startOfDay).dayOfYear)
@@ -37,12 +44,11 @@ fun State.Builder.onFirstOpen(toast: Toaster, settings: Settings): State.Builder
   // streak
   //  lastDayStreak = now.toBuilder().setSeconds(now.seconds - (24 * 60 * 60)).build()
   //  toast(lastDayStreak.realDay(startOfDay).toString() + " to " + now.toLocalDate().toString())
-  if (lastDayStreak.realDay(settings.startOfDay).isPrevDay(now.realDay(settings.startOfDay))
-    && (settings.dailyHoursMin..settings.dailyHoursMax).contains(timeWorked.hours)
-  ) {
+  if (lastDayStreak.realDay(START_OF_DAY).isPrevDay(now.realDay(START_OF_DAY))
+    && (settings.dailyHoursMin..settings.dailyHoursMax).contains(timeWorked.hours)) {
     streakDays++
     // could add more fun stuff here
-  } else {
+  } else if (!(settings.shabbat && isSaturday())) {
     toast("Streak lost!")
     clearStreakDays()
   }

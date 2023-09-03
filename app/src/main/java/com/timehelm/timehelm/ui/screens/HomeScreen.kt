@@ -177,8 +177,8 @@ fun ManualModifyTime(updateState: StateUpdate, toast: Toaster) {
   var min by remember { mutableStateOf(0) }
   BodySection {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-      Setting(name = "Hr", value = hr, setValue = { hr = it })
-      Setting(name = "Min", value = min, setValue = { min = it })
+      NumberSetting(name = "Hr", value = hr, setValue = { hr = it })
+      NumberSetting(name = "Min", value = min, setValue = { min = it })
     }
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
       Button(onClick = modifyTime(hr, min, updateState, toast, "Added") { a, b -> a + b }) {

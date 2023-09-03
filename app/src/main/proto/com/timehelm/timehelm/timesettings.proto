@@ -9,8 +9,6 @@ message Settings {
   // negative values (generally -1) indicate value is not set
   int32 dailyHoursMin = 1;
   int32 dailyHoursMax = 2;
-
-  int32 vacationDays = 5; // TODO make this better later
-
-  int32 startOfDay = 6;
+  bool shabbat = 3;
+  int32 workStart = 4;
 }

@@ -228,7 +228,7 @@ fun PokemonScreen() {
   )
   val updatePokemonState = useUpdatePokemon()
   val pokemon = remember(pokemonState.pokemonList) {
-    pokemonState.pokemonList.sortedWith { p1, p2 -> p1.id.compareTo(p2.id) }
+    pokemonState.pokemonList.shuffled()
   }
   // pokemon data fetching
   var pokemonData: PokemonData? by remember { mutableStateOf(null) }

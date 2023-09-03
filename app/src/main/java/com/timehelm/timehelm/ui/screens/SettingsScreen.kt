@@ -26,32 +26,29 @@ fun SettingsScreen(settings: Settings, updateSettings: SettingsUpdate) {
     T40("Settings")
     BodySection {
       T30("Goal daily hours range:")
-      Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        Setting(
-          name = "Min",
-          value = settings.dailyHoursMin
-        ) { v ->
-          updateSettings {
-            it.setDailyHoursMin(v).setDailyHoursMax(max(it.dailyHoursMax, v))
-          }
+      NumberSetting(
+        name = "Min",
+        value = settings.dailyHoursMin
+      ) { v ->
+        updateSettings {
+          it.setDailyHoursMin(v).setDailyHoursMax(max(it.dailyHoursMax, v))
         }
-        Setting(
-          name = "Max",
-          value = settings.dailyHoursMax
-        ) { v -> updateSettings { it.setDailyHoursMax(v) } }
+      }
+      NumberSetting(
+        name = "Max",
+        value = settings.dailyHoursMax
+      ) { v -> updateSettings { it.setDailyHoursMax(v) } }
+    }
+    BodySection {
+      ToggleSetting(name = "Shabbat", value = settings.shabbat) {
+        updateSettings { s -> s.setShabbat(it) }
       }
     }
     BodySection {
-      Setting(
-        name = "Vacation (TODO)",
-        value = settings.vacationDays
-      ) { v -> updateSettings { it.setVacationDays(v) } }
-    }
-    BodySection {
-      Setting(
-        name = "Start of Day",
-        value = settings.startOfDay
-      ) { v -> updateSettings { it.setStartOfDay(v) } }
+      NumberSetting(name = "Work Starts", value = settings.workStart) {
+        updateSettings { s -> s.setWorkStart(it) }
+      }
+      // throw an error if work start + min > 24 ??
     }
     DebugMenu(settings)
   }
@@ -73,7 +70,9 @@ fun DebugMenu(settings: Settings) {
       },
       text = {
         Column(
-          Modifier.verticalScroll(rememberScrollState()).padding(vertical = 10.dp),
+          Modifier
+            .verticalScroll(rememberScrollState())
+            .padding(vertical = 10.dp),
           verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
           Button({ updateState { it.onFirstOpen(toast, settings) } }) {

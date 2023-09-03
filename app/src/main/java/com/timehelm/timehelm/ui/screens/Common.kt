@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,35 +37,6 @@ fun Section(modifier: Modifier, spacing: Dp, content: @Composable () -> Unit) {
     ) {
       content()
     }
-  }
-}
-
-@Composable
-fun Setting(name: String, value: Int, setValue: (Int) -> Unit) {
-  Row(verticalAlignment = Alignment.CenterVertically) {
-    if (name.isNotEmpty()) {
-      T30("$name: ")
-    }
-    OutlinedTextField(
-      value = if (value >= 0) value.toString() else "",
-      onValueChange = {
-        if (it == "") {
-          setValue(-1)
-        } else {
-          try {
-            setValue(Integer.parseInt(it))
-          } catch (_: NumberFormatException) {
-          }
-        }
-      },
-      keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-      textStyle = TextStyle(
-        fontSize = 30.sp,
-        color = MaterialTheme.colors.onBackground,
-      ),
-      modifier = Modifier.width(90.dp),
-      singleLine = true,
-    )
   }
 }
 
@@ -133,4 +105,46 @@ fun T10(
   color: Color? = null
 ) {
   Header(10.sp, text, modifier, fontStyle, color)
+}
+@Composable
+fun Setting(name: String, inner: @Composable () -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+    if (name.isNotEmpty()) {
+      T30("$name: ", Modifier.padding(horizontal = 10.dp))
+    }
+    inner()
+  }
+}
+
+@Composable
+fun NumberSetting(name: String, value: Int, setValue: (Int) -> Unit) {
+  Setting(name) {
+    OutlinedTextField(
+      value = if (value >= 0) value.toString() else "",
+      onValueChange = {
+        if (it == "") {
+          setValue(-1)
+        } else {
+          try {
+            setValue(Integer.parseInt(it))
+          } catch (_: NumberFormatException) {
+          }
+        }
+      },
+      keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+      textStyle = TextStyle(
+        fontSize = 30.sp,
+        color = MaterialTheme.colors.onBackground,
+      ),
+      modifier = Modifier.width(90.dp),
+      singleLine = true,
+    )
+  }
+}
+
+@Composable
+fun ToggleSetting(name: String, value: Boolean, setValue: (Boolean) -> Unit) {
+  Setting(name) {
+    Switch(checked = value, onCheckedChange = setValue)
+  }
 }

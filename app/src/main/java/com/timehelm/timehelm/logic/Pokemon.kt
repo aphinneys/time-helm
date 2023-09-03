@@ -91,7 +91,7 @@ suspend fun getPokemon(id: Int): PokemonData? {
         speciesJson.getInt("capture_rate"),
       )
     }
-  } catch (ex: java.lang.Exception) {
+  } catch (ex: Exception) {
     null
   }
 }

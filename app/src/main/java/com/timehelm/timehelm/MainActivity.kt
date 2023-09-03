@@ -6,7 +6,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Icon
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
@@ -14,7 +18,6 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -24,11 +27,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.timehelm.timehelm.logic.START_OF_DAY
 import com.timehelm.timehelm.logic.checkGoals
 import com.timehelm.timehelm.logic.firstOpen
 import com.timehelm.timehelm.logic.onFirstOpen
 import com.timehelm.timehelm.logic.useToast
-import com.timehelm.timehelm.state.*
+import com.timehelm.timehelm.state.Settings
+import com.timehelm.timehelm.state.State
+import com.timehelm.timehelm.state.settingsDataStore
+import com.timehelm.timehelm.state.stateDataStore
+import com.timehelm.timehelm.state.useUpdateSettings
+import com.timehelm.timehelm.state.useUpdateState
 import com.timehelm.timehelm.ui.screens.HomeScreen
 import com.timehelm.timehelm.ui.screens.PokemonScreen
 import com.timehelm.timehelm.ui.screens.SettingsScreen
@@ -65,7 +74,7 @@ class MainActivity : ComponentActivity() {
         val toastLong = useToast(Toast.LENGTH_LONG)
 
         // first time loading the app for the day
-        if (state.firstOpen(settings.startOfDay)) {
+        if (state.firstOpen(START_OF_DAY, toast)) {
           updateState { it.onFirstOpen(toastLong, settings) }
         }
 
