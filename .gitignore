@@ -45,6 +45,7 @@ Thumbs.db
 # app keys
 *.jks
 *.pepk
+upload_certificate.pem
 
 # releases
 app/release/*
