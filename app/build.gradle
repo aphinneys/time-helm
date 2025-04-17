@@ -1,12 +1,12 @@
 plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
-    id 'com.google.protobuf'
+    id "com.android.application"
+    id "org.jetbrains.kotlin.android"
+    id "com.google.protobuf"
 
 }
 
 android {
-    namespace 'com.timehelm.timehelm'
+    namespace "com.timehelm.timehelm"
     compileSdk 35
 
     defaultConfig {
@@ -25,7 +25,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
     compileOptions {
@@ -33,35 +33,36 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = "1.8"
     }
     buildFeatures {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.5.0'
+        kotlinCompilerExtensionVersion "1.5.0"
     }
     packagingOptions {
         resources {
-            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.16.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.7'
-    implementation 'androidx.activity:activity-compose:1.10.1'
+    implementation "androidx.core:core-ktx:1.16.0"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.8.7"
+    implementation "androidx.activity:activity-compose:1.10.1"
     implementation "androidx.compose.ui:ui:1.7.8"
     implementation "androidx.compose.ui:ui-tooling-preview:1.7.8"
-    implementation 'androidx.compose.material:material:1.7.8'
+    implementation "androidx.compose.material:material:1.7.8"
+    implementation "androidx.compose.material:material-icons-extended:1.7.8"
     implementation "androidx.datastore:datastore:1.1.4"
     implementation "androidx.navigation:navigation-compose:2.8.9"
-    implementation 'com.google.protobuf:protobuf-javalite:3.14.0'
+    implementation "com.google.protobuf:protobuf-javalite:3.14.0"
     implementation "io.coil-kt:coil-compose:2.2.2"
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    testImplementation "junit:junit:4.13.2"
+    androidTestImplementation "androidx.test.ext:junit:1.2.1"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.6.1"
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:1.7.8"
     debugImplementation "androidx.compose.ui:ui-tooling:1.7.8"
     debugImplementation "androidx.compose.ui:ui-test-manifest:1.7.8"
@@ -69,14 +70,14 @@ dependencies {
 
 protobuf {
     protoc {
-        artifact = 'com.google.protobuf:protoc:3.14.0'
+        artifact = "com.google.protobuf:protoc:3.14.0"
     }
 // this is a task which wil generate classes for our proto files
     generateProtoTasks {
         all().each { task ->
             task.builtins {
                 java {
-                    option 'lite'
+                    option "lite"
                 }
             }
         }
