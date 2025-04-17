@@ -16,8 +16,7 @@ fun isSaturday(): Boolean {
   return Calendar.getInstance().get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY
 }
 
-fun State.firstOpen(startOfDay: Int, toast: Toaster): Boolean {
-  //  toast("$ld to $nd, " + (nd != ld))
+fun State.firstOpen(startOfDay: Int): Boolean {
   return lastDayStreak != Timestamp.getDefaultInstance()
           && (lastDayStreak.realDay(startOfDay).dayOfYear
           != now().realDay(startOfDay).dayOfYear)
