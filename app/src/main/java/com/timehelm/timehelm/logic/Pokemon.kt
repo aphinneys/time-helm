@@ -14,7 +14,7 @@ import java.net.URL
 data class PokemonData(
   val id: Int,
   val name: String,
-  val picture_url: String?,
+  val pictureUrl: String?,
   val types: List<String>,
   val catchRate: Int,
 ) {
@@ -23,7 +23,7 @@ data class PokemonData(
       .setId(id)
       .setName(name)
       .setCount(1)
-      .setPictureUrl(picture_url)
+      .setPictureUrl(pictureUrl)
       .addAllTypes(types)
       .build()
   }

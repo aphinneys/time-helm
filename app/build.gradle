@@ -7,13 +7,13 @@ plugins {
 
 android {
     namespace 'com.timehelm.timehelm'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.timehelm.timehelm"
         minSdk 29
-        targetSdk 34
-        versionCode 3
+        targetSdk 35
+        versionCode 4
         versionName "1.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

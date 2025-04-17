@@ -70,7 +70,7 @@ fun PokemonSprite(url: String, name: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun popup(message: String, confirmText: String, imageURL: String?, close: () -> Unit) {
+fun Popup(message: String, confirmText: String, imageURL: String?, close: () -> Unit) {
   AlertDialog(onDismissRequest = close,
     title = {
       Text(message, fontSize = 30.sp)
@@ -158,14 +158,14 @@ fun CatchPokemon(
     }
   }
   caughtState?.let {
-    popup(
+    Popup(
       stringResource(it),
       stringResource(
         if (it == R.string.caught_text)
           R.string.confirm_caught
         else R.string.confirm_escaped
       ),
-      if (it == R.string.caught_text) data.picture_url else null
+      if (it == R.string.caught_text) data.pictureUrl else null
     ) {
       caughtState = null
     }
@@ -213,7 +213,7 @@ fun PokemonList(pokemon: List<Pokemon>) {
 @Composable
 fun PokemonScreen() {
   // keep track of which hour it is, and update every ten seconds
-  var hours by remember { mutableStateOf(hour()) }
+  var hours by remember { mutableLongStateOf(hour()) }
   LaunchedEffect(Unit) {
     while (true) {
       hours = hour()

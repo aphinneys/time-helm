@@ -173,8 +173,8 @@ fun modifyTime(
 
 @Composable
 fun ManualModifyTime(updateState: StateUpdate, toast: Toaster) {
-  var hr by remember { mutableStateOf(0) }
-  var min by remember { mutableStateOf(0) }
+  var hr by remember { mutableIntStateOf(0) }
+  var min by remember { mutableIntStateOf(0) }
   BodySection {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
       NumberSetting(name = "Hr", value = hr, setValue = { hr = it })
