@@ -57,12 +57,12 @@ fun HomeScreen(state: State, settings: Settings, updateState: StateUpdate, toast
     Spacer(modifier = Modifier.padding(10.dp))
     ManualModifyTime(updateState, toast)
     Spacer(modifier = Modifier.padding(10.dp))
-    GoalsPopup(state.xpGoalsMap.filter { it.value }.map { it.key })
+    GoalsPopup(state.xpGoalsMap)
   }
 }
 
 @Composable
-fun GoalsPopup(xpGoals: List<String>) {
+fun GoalsPopup(xpGoals: Map<String, Boolean>) {
   var isOpen by remember { mutableStateOf(false) }
   Button({ isOpen = true }) {
     T20("Check Goals")
@@ -78,14 +78,9 @@ fun GoalsPopup(xpGoals: List<String>) {
           Modifier.verticalScroll(rememberScrollState()),
           verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-          if (xpGoals.isEmpty()) {
-            T25("None so far!", fontStyle = FontStyle.Italic)
-          } else {
-            xpGoals.forEach {
-              messages[it]?.let { message ->
-                T25("⭐ $message")
-              }
-            }
+          messages.forEach {
+            val indicator = if (xpGoals.getOrDefault(it.key, false)) "⭐" else "⏳"
+            T20("$indicator ${it.value}")
           }
         }
       },
@@ -93,7 +88,8 @@ fun GoalsPopup(xpGoals: List<String>) {
         Button({ isOpen = false }) {
           T20("Close")
         }
-      }
+      },
+      modifier = Modifier.padding(all=.1.dp)
     )
   }
 }
@@ -136,12 +132,15 @@ fun Message(state: State, settings: Settings, now: Timestamp) {
         0 -> {
           R.string.starting_message
         }
+
         in 1 until settings.dailyHoursMin -> {
           R.string.working_message
         }
+
         in settings.dailyHoursMin until settings.dailyHoursMax -> {
           R.string.in_goal_message
         }
+
         else -> {
           R.string.done_message
         }

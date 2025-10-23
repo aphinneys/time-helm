@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 
 @Composable
@@ -52,6 +53,7 @@ fun Header(
     text = message,
     fontSize = fontSize,
     fontStyle = fontStyle,
+    style = TextStyle(lineHeight = 1.em),
     modifier = modifier,
     color = color ?: MaterialTheme.colors.onBackground
   )
