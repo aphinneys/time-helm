@@ -1,5 +1,6 @@
 package com.timehelm.timehelm.ui.screens
 
+import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
@@ -35,6 +36,7 @@ import com.timehelm.timehelm.ui.theme.Shapes
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.Integer.max
+import kotlin.time.Duration
 
 
 fun hour(): Long {
@@ -133,29 +135,32 @@ fun CatchPokemon(
       }
     }
   }
-  if (!state.attempted) {
+
     Column(
       verticalArrangement = Arrangement.spacedBy(25.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-      Text("A wild ${data.name} appeared!", fontSize = 25.sp, textAlign = TextAlign.Center)
-      Image(
-        painterResource(R.drawable.pokeball), contentDescription = "Pokeball",
-        Modifier
-          .fillMaxWidth(.25f)
-          .clickable(
-            enabled = true, onClickLabel = "Clickable Pokeball", onClick = catch
-          )
-          .graphicsLayer {
-            rotationZ = rotation.value
-          },
-        contentScale = ContentScale.Inside,
-      )
-      Text(
-        "There is a ${(catchProbability * 100).toInt()}% chance to catch it (${data.catchRate})",
-        fontSize = 20.sp
-      )
-    }
+      if (!state.attempted) {
+        Text("A wild ${data.name} appeared!", fontSize = 25.sp, textAlign = TextAlign.Center)
+        Image(
+          painterResource(R.drawable.pokeball), contentDescription = "Pokeball",
+          Modifier
+            .fillMaxWidth(.25f)
+            .clickable(
+              enabled = true, onClickLabel = "Clickable Pokeball", onClick = catch
+            )
+            .graphicsLayer {
+              rotationZ = rotation.value
+            },
+          contentScale = ContentScale.Inside,
+        )
+        Text(
+          "There is a ${(catchProbability * 100).toInt()}% chance to catch it (${data.catchRate})",
+          fontSize = 20.sp
+        )
+      } else {
+        Text("Already attempted, come back next hour!", fontSize = 25.sp, textAlign = TextAlign.Center)
+      }
   }
   caughtState?.let {
     Popup(
@@ -239,8 +244,9 @@ fun PokemonScreen() {
       }
     }
   }
+  val toast = useToast(Toast.LENGTH_LONG)
   LaunchedEffect(pokemonState.currentPokemonId) {
-    pokemonData = getPokemon(pokemonState.currentPokemonId)
+    pokemonData = getPokemon(toast, pokemonState.currentPokemonId)
   }
 
   Section(Modifier.padding(15.dp), 10.dp) {

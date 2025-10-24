@@ -1,5 +1,7 @@
 package com.timehelm.timehelm.logic
 
+import android.content.Context
+import android.widget.Toast
 import com.timehelm.timehelm.state.Pokemon
 import com.timehelm.timehelm.state.PokemonState
 import com.timehelm.timehelm.state.PokemonUpdate
@@ -71,7 +73,7 @@ fun pickId(): Int {
   return VALID_IDS.random()
 }
 
-suspend fun getPokemon(id: Int): PokemonData? {
+suspend fun getPokemon(toast: Toaster, id: Int): PokemonData? {
   if (!VALID_IDS.contains(id)) {
     return null
   }
@@ -92,6 +94,7 @@ suspend fun getPokemon(id: Int): PokemonData? {
       )
     }
   } catch (ex: Exception) {
+    toast("Error fetching pokemon: ${ex.toString()}")
     null
   }
 }

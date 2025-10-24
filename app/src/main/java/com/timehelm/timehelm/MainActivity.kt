@@ -21,6 +21,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -88,7 +92,7 @@ class MainActivity : ComponentActivity() {
 
         Scaffold(
           bottomBar = {
-            BottomNavigation {
+            BottomNavigation(windowInsets = WindowInsets.navigationBars) {
               val navBackStackEntry by navController.currentBackStackEntryAsState()
               val currentDestination = navBackStackEntry?.destination
               items.forEach { screen ->
@@ -125,7 +129,7 @@ class MainActivity : ComponentActivity() {
           NavHost(
             navController,
             startDestination = Screen.Home.route,
-            Modifier.padding(innerPadding)
+            Modifier.padding(innerPadding).windowInsetsPadding(WindowInsets.statusBars)
           ) {
             composable(Screen.Settings.route) { SettingsScreen(settings, updateSettings) }
             composable(Screen.Home.route) { HomeScreen(state, settings, updateState, toast) }
