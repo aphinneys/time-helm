@@ -10,7 +10,6 @@ import androidx.datastore.core.Serializer
 import androidx.datastore.dataStore
 import com.google.protobuf.InvalidProtocolBufferException
 import com.google.protobuf.MessageLite
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.InputStream
 import java.io.OutputStream
