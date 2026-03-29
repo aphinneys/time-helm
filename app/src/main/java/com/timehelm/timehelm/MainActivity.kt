@@ -4,8 +4,13 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -21,10 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -64,6 +65,7 @@ val icons = hashMapOf(
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    enableEdgeToEdge()
     setContent {
       TimeHelmTheme {
         val navController = rememberNavController()
@@ -100,7 +102,7 @@ class MainActivity : ComponentActivity() {
                   icon = {
                     Icon(
                       icons[screen.resourceId]!!,
-                      contentDescription = stringResource(id = screen.resourceId)
+                      contentDescription = stringResource(id = screen.resourceId),
                     )
                   },
                   label = { Text(stringResource(screen.resourceId)) },
@@ -119,17 +121,17 @@ class MainActivity : ComponentActivity() {
                       // Restore state when reselecting a previously selected item
                       restoreState = true
                     }
-                  }
+                  },
                 )
               }
             }
           },
-          backgroundColor = getColorForTrackingState(state.isTracking)
+          backgroundColor = getColorForTrackingState(state.isTracking),
         ) { innerPadding ->
           NavHost(
             navController,
             startDestination = Screen.Home.route,
-            Modifier.padding(innerPadding).windowInsetsPadding(WindowInsets.statusBars)
+            Modifier.padding(innerPadding).windowInsetsPadding(WindowInsets.statusBars),
           ) {
             composable(Screen.Settings.route) { SettingsScreen(settings, updateSettings) }
             composable(Screen.Home.route) { HomeScreen(state, settings, updateState, toast) }

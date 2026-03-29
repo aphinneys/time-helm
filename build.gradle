@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.4'
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.6'
     }
  }// Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
@@ -24,7 +24,8 @@ spotless {
         ktlint()
             .editorConfigOverride(
                 [
-                    'ktlint_function_naming_ignore_when_annotated_with': 'Composable'
+                    'ktlint_function_naming_ignore_when_annotated_with': 'Composable',
+                    'indent_size': '2'
                 ]
             )
     }
